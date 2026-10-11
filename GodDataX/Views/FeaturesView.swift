@@ -34,13 +34,13 @@ struct FeaturesView: View {
                 
                 // Group 1: Security & Protection
                 VStack(alignment: .leading, spacing: 10) {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 8) {
                         Image(systemName: "shield.lefthalf.filled")
                             .foregroundColor(.green)
-                            .font(.system(size: 13))
-                        Text("SECURITY & BYPASS")
-                            .font(.system(size: 11, weight: .black, design: .monospaced))
-                            .foregroundColor(.gray)
+                            .font(.system(size: 14))
+                        Text("Security & Bypass")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundColor(.white)
                     }
                     .padding(.horizontal, 4)
                     
@@ -70,13 +70,13 @@ struct FeaturesView: View {
                 
                 // Group 2: Combat Enhancements
                 VStack(alignment: .leading, spacing: 10) {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 8) {
                         Image(systemName: "scope")
                             .foregroundColor(Color(hex: "FF1E27"))
-                            .font(.system(size: 13))
-                        Text("AIM & COMBAT TUNING")
-                            .font(.system(size: 11, weight: .black, design: .monospaced))
-                            .foregroundColor(.gray)
+                            .font(.system(size: 14))
+                        Text("Aim & Combat Tuning")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundColor(.white)
                     }
                     .padding(.horizontal, 4)
                     
@@ -126,13 +126,13 @@ struct FeaturesView: View {
                 
                 // Group 3: Hardware & Performance Boost
                 VStack(alignment: .leading, spacing: 10) {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 8) {
                         Image(systemName: "bolt.fill")
                             .foregroundColor(Color(hex: "FF1E27"))
-                            .font(.system(size: 13))
-                        Text("DEVICE BOOST (IOS)")
-                            .font(.system(size: 11, weight: .black, design: .monospaced))
-                            .foregroundColor(.gray)
+                            .font(.system(size: 14))
+                        Text("Device Boost (iOS)")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundColor(.white)
                     }
                     .padding(.horizontal, 4)
                     

@@ -27,51 +27,45 @@ struct ContentView: View {
                     }
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                     
-                    // Floating Bottom Navbar matching screenshot reference
+                    // Floating Bottom Navbar - Compact Centered Capsule with Red Accent
                     HStack(spacing: 8) {
                         // Tab 0: Mulai Game
                         NavBarButton(
-                            icon: "gamecontroller.fill",
+                            icon: "flame.fill",
                             title: "Mulai Game",
                             isSelected: selectedTab == 0
                         ) {
                             switchTab(0)
                         }
                         
-                        Spacer()
-                        
                         // Tab 1: Profile
                         NavBarButton(
-                            icon: "person.crop.circle.fill",
+                            icon: "person.text.rectangle.fill",
                             title: "Profil",
                             isSelected: selectedTab == 1
                         ) {
                             switchTab(1)
                         }
                         
-                        Spacer()
-                        
                         // Tab 2: Settings / Features
                         NavBarButton(
-                            icon: "gearshape.fill",
+                            icon: "slider.horizontal.3",
                             title: "Fitur",
                             isSelected: selectedTab == 2
                         ) {
                             switchTab(2)
                         }
                     }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 8)
+                    .padding(6)
                     .background(
                         Capsule()
-                            .fill(Color(hex: "0F1014"))
+                            .fill(Color(hex: "0E1015"))
                             .overlay(
-                                Capsule().stroke(Color.white.opacity(0.06), lineWidth: 1)
+                                Capsule().stroke(Color.white.opacity(0.08), lineWidth: 1)
                             )
-                            .shadow(color: Color.black.opacity(0.8), radius: 18, y: 8)
+                            .shadow(color: Color.black.opacity(0.75), radius: 20, y: 8)
                     )
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 14)
+                    .padding(.bottom, 20)
                 }
                 .transition(.opacity)
             }
@@ -88,7 +82,7 @@ struct ContentView: View {
     }
 }
 
-// Subcomponent: Custom Navbar Button matching the green active capsule design
+// Subcomponent: Custom Navbar Button with Red Active Capsule
 struct NavBarButton: View {
     let icon: String
     let title: String
@@ -99,7 +93,7 @@ struct NavBarButton: View {
         Button(action: action) {
             HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.system(size: 15, weight: .bold))
                     .foregroundColor(.white)
                 
                 if isSelected {
@@ -110,12 +104,13 @@ struct NavBarButton: View {
             }
             .padding(.vertical, 10)
             .padding(.horizontal, isSelected ? 18 : 14)
+            .frame(minWidth: isSelected ? nil : 46, minHeight: 40)
             .background(
                 Group {
                     if isSelected {
                         Capsule()
-                            .fill(Color(hex: "185838")) // Emerald forest green from screenshot
-                            .shadow(color: Color(hex: "185838").opacity(0.35), radius: 6, y: 2)
+                            .fill(Color(hex: "FF1E27")) // GodDataX Red
+                            .shadow(color: Color(hex: "FF1E27").opacity(0.45), radius: 8, y: 2)
                     } else {
                         Color.clear
                     }
@@ -124,3 +119,4 @@ struct NavBarButton: View {
         }
     }
 }
+
