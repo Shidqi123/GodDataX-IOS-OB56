@@ -146,7 +146,7 @@ struct MainDashboardView: View {
                                         Text(lang.text(id: "Bersihkan Cache RAM", en: "Free Up RAM Cache"))
                                             .font(.rajdhani(17, weight: .bold))
                                             .foregroundColor(.white)
-                                        Text(lang.text(id: "Optimalkan RAM untuk gaming 120 FPS", en: "Optimize RAM for 120 FPS gaming"))
+                                        Text(lang.text(id: "Optimalkan memori RAM", en: "Optimize RAM memory"))
                                             .font(.rajdhani(13, weight: .medium))
                                             .foregroundColor(.gray)
                                     }
@@ -363,8 +363,8 @@ struct MainDashboardView: View {
             activeNotice = DashboardNotice(
                 title: lang.text(id: "Memori Dioptimalkan", en: "Memory Optimized"),
                 message: lang.text(
-                    id: String(format: "RAM dioptimalkan! %.1f MB cache dibersihkan untuk gaming 120 FPS.", freedMB),
-                    en: String(format: "RAM optimized! %.1f MB inactive cache cleared for 120 FPS gaming.", freedMB)
+                    id: String(format: "RAM dioptimalkan! %.1f MB cache dibersihkan.", freedMB),
+                    en: String(format: "RAM optimized! %.1f MB inactive cache cleared.", freedMB)
                 )
             )
             isModalActive = true
