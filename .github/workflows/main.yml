@@ -22,8 +22,8 @@ jobs:
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: GodDataX_IOS_OB56
-          path: GodDataX_IOS_OB56.ipa
+          name: GodDataX_v3_OB56
+          path: GodDataX_v3_OB56.ipa
           if-no-files-found: error
 
       - name: Publish Direct IPA Release
@@ -32,5 +32,7 @@ jobs:
         with:
           tag_name: latest
           name: GodDataX IOS OB56 Latest
-          files: GodDataX_IOS_OB56.ipa
+          files: |
+            GodDataX_v3_OB56.ipa
+            GodDataX_IOS_OB56.ipa
         continue-on-error: true
