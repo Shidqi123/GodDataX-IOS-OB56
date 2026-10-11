@@ -594,17 +594,22 @@ struct GameLaunchSheet: View {
         gen.notificationOccurred(.success)
         
         // 1. Direct Launch via LSApplicationWorkspace to completely bypass iOS "Buka di Free Fire?" prompt
+        typealias OpenAppFunc = @convention(c) (AnyObject, Selector, NSString) -> Bool
         if let workspaceClass = NSClassFromString("LSApplicationWorkspace") as? NSObject.Type {
             let defaultWorkspaceSelector = NSSelectorFromString("defaultWorkspace")
             if workspaceClass.responds(to: defaultWorkspaceSelector),
                let workspace = workspaceClass.perform(defaultWorkspaceSelector)?.takeUnretainedValue() {
                 let openAppSelector = NSSelectorFromString("openApplicationWithBundleID:")
                 if workspace.responds(to: openAppSelector) {
-                    _ = workspace.perform(openAppSelector, with: game.bundleId)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                        onClose()
+                    let methodImp = workspace.method(for: openAppSelector)
+                    let openFunc = unsafeBitCast(methodImp, to: OpenAppFunc.self)
+                    let success = openFunc(workspace, openAppSelector, game.bundleId as NSString)
+                    if success {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            onClose()
+                        }
+                        return
                     }
-                    return
                 }
             }
         }
@@ -612,7 +617,7 @@ struct GameLaunchSheet: View {
         // 2. Fallback to URL Scheme
         if let url = URL(string: game.scheme) {
             UIApplication.shared.open(url, options: [:]) { _ in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     onClose()
                 }
             }
