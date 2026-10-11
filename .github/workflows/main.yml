@@ -16,6 +16,16 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
+      - name: 📁 Prepare Project Directory
+        run: |
+          # Otomatis pindahkan isi subfolder ke root jika ter-upload di dalam folder
+          if [ -d "GodDataX IOS OB56" ]; then
+            echo "Memindahkan isi 'GodDataX IOS OB56' ke root..."
+            cp -rn "GodDataX IOS OB56"/* . 2>/dev/null || true
+            cp -rn "GodDataX IOS OB56"/.* . 2>/dev/null || true
+          fi
+          ls -la
+
       - name: ⚙️ Setup XcodeGen
         run: |
           brew install xcodegen
@@ -64,4 +74,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
-
