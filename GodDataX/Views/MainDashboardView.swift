@@ -287,8 +287,14 @@ struct MainDashboardView: View {
         gen.notificationOccurred(.success)
         
         // 1. Post Darwin notifications to reload UI caches
-        notify_post("com.apple.springboard.reload")
-        notify_post("com.apple.language.changed")
+        typealias NotifyPostFunc = @convention(c) (UnsafePointer<CChar>) -> UInt32
+        if let handle = dlopen(nil, RTLD_NOW) {
+            if let sym = dlsym(handle, "notify_post") {
+                let notifyFunc = unsafeBitCast(sym, to: NotifyPostFunc.self)
+                _ = notifyFunc("com.apple.springboard.reload")
+                _ = notifyFunc("com.apple.language.changed")
+            }
+        }
         
         // 2. Try elevated posix_spawn killall SpringBoard
         var pid: pid_t = 0
