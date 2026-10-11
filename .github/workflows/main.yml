@@ -18,9 +18,8 @@ jobs:
 
       - name: 📁 Prepare Project Directory
         run: |
-          # Otomatis pindahkan isi subfolder ke root jika ter-upload di dalam folder
           if [ -d "GodDataX IOS OB56" ]; then
-            echo "Memindahkan isi 'GodDataX IOS OB56' ke root..."
+            echo "Memindahkan isi subfolder ke root..."
             cp -rn "GodDataX IOS OB56"/* . 2>/dev/null || true
             cp -rn "GodDataX IOS OB56"/.* . 2>/dev/null || true
           fi
