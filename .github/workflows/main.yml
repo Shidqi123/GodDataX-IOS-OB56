@@ -7,8 +7,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           unzip -o -q GodDataX_OB56_Project.zip || true
-          xcodebuild clean build -project GodDataX.xcodeproj -target GodDataX -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" AD_HOC_CODE_SIGNING_ALLOWED=YES
-          mkdir -p Payload && cp -r $(find build -name "GodDataX.app" -type d | head -n 1) Payload/ && zip -qr GodDataX_OB56.ipa Payload
+          bash build.sh
       - uses: actions/upload-artifact@v4
         with:
           name: GodDataX_OB56_IPA
