@@ -109,13 +109,27 @@ class AuthService: ObservableObject {
             request.httpMethod = "GET"
             request.timeoutInterval = 3.0
             
-            URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
-                guard let self = self, let data = data, error == nil,
-                      let expiryText = String(data: data, encoding: .utf8)?.replacingOccurrences(of: "\"", with: "").trimmingCharacters(in: .whitespacesAndNewlines),
-                      expiryText != "null", !expiryText.isEmpty else { return }
+            URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+                guard let self = self, let data = data, error == nil else { return }
+                
+                // Verify HTTP 200 OK
+                if let httpRes = response as? HTTPURLResponse, httpRes.statusCode != 200 {
+                    return
+                }
+                
+                guard let rawText = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
+                      !rawText.isEmpty, rawText != "null" else { return }
+                
+                let lower = rawText.lowercased()
+                if lower.contains("error") || lower.contains("404") || lower.contains("<html") || lower.contains("{") {
+                    return
+                }
+                
+                let cleanExpiry = rawText.replacingOccurrences(of: "\"", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !cleanExpiry.isEmpty else { return }
                 
                 DispatchQueue.main.async {
-                    self.expiryDateString = expiryText
+                    self.expiryDateString = cleanExpiry
                 }
             }.resume()
         }

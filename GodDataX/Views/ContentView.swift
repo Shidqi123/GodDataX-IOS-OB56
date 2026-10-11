@@ -21,7 +21,7 @@ struct ContentView: View {
                         MainDashboardView(isModalActive: $isModalActive)
                             .tag(0)
                         
-                        StatusProfileView()
+                        StatusProfileView(isModalActive: $isModalActive)
                             .tag(1)
                         
                         FeaturesView()
