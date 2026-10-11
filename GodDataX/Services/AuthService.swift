@@ -8,7 +8,7 @@ class AuthService: ObservableObject {
     @Published var currentKey: String = ""
     @Published var hwid: String = ""
     @Published var deviceUserId: String = ""
-    @Published var expiryDateString: String = "OB56"
+    @Published var expiryDateString: String = AuthService.getOB57CountdownString()
     @Published var errorMessage: String?
     @Published var isVerifying: Bool = false
     public let sessionStartTime = Date()
@@ -38,10 +38,27 @@ class AuthService: ObservableObject {
     private let hwidStorage = "goddatax_device_hwid"
     private let deviceUserStorage = "goddatax_device_user_id"
     
+    static func getOB57CountdownString() -> String {
+        let calendar = Calendar.current
+        var comps = DateComponents()
+        comps.year = 2026
+        comps.month = 11
+        comps.day = 27
+        if let target = calendar.date(from: comps) {
+            let days = calendar.dateComponents([.day], from: Date(), to: target).day ?? 47
+            if days > 0 {
+                return "OB57 (\(days) Hari lagi)"
+            } else if days == 0 {
+                return "OB57 (Hari ini)"
+            }
+        }
+        return "OB57 (Segera)"
+    }
+    
     init() {
         self.hwid = getOrGenerateHWID()
         self.deviceUserId = getOrGenerateDeviceUserId()
-        self.expiryDateString = "OB56"
+        self.expiryDateString = AuthService.getOB57CountdownString()
         checkStoredSession()
         syncUserWithFirebase()
     }
@@ -151,10 +168,18 @@ class AuthService: ObservableObject {
                 }
             }
             
-            // Update expiry display from Firebase
+            // Update expiry display: show countdown to OB57
             if let exp = userDict["expiry"] as? String, !exp.isEmpty {
                 DispatchQueue.main.async {
-                    self.expiryDateString = exp
+                    if exp.uppercased() == "OB56" || exp.uppercased().contains("OB56") {
+                        self.expiryDateString = AuthService.getOB57CountdownString()
+                    } else {
+                        self.expiryDateString = exp
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.expiryDateString = AuthService.getOB57CountdownString()
                 }
             }
             
