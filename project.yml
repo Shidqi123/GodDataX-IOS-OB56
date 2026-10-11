@@ -1,6 +1,6 @@
 name: GodDataX
 options:
-  bundleIdPrefix: com.kutoo
+  bundleIdPrefix: com.goddatax
   deploymentTarget:
     iOS: "15.0"
 settings:
@@ -23,7 +23,7 @@ targets:
       path: GodDataX/Info.plist
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.kutoo.goddatax
+        PRODUCT_BUNDLE_IDENTIFIER: com.goddatax.ios.ob56
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         INFOPLIST_FILE: GodDataX/Info.plist
