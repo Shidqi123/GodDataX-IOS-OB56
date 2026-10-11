@@ -26,7 +26,7 @@ struct MainDashboardView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 20)
                     
-                    // Card 1: Free Fire (Clean minimal row like screenshot 2)
+                    // Card 1: Free Fire (Realtime Artwork Background + Circular Icon)
                     GameCompactRow(
                         title: "Free Fire",
                         scheme: AppConfig.ffScheme,
@@ -35,7 +35,7 @@ struct MainDashboardView: View {
                     )
                     .padding(.horizontal, 20)
                     
-                    // Card 2: Free Fire MAX (Clean minimal row)
+                    // Card 2: Free Fire MAX (Realtime Artwork Background + Circular Icon)
                     GameCompactRow(
                         title: "Free Fire MAX",
                         scheme: AppConfig.ffMaxScheme,
@@ -149,7 +149,7 @@ struct MainDashboardView: View {
     }
 }
 
-// Subcomponent: Clean Compact Game Row matching user's reference screenshot
+// Subcomponent: Compact Game Row with Realtime Artwork Banner Background
 struct GameCompactRow: View {
     let title: String
     let scheme: String
@@ -158,55 +158,106 @@ struct GameCompactRow: View {
     
     var body: some View {
         Button(action: launchGame) {
-            HStack(spacing: 14) {
-                // Circular App Artwork
-                ZStack {
-                    Circle()
-                        .fill(Color(hex: "1C1D24"))
-                        .frame(width: 44, height: 44)
-                    
-                    if let url = iconURL {
-                        AsyncImage(url: url) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 44, height: 44)
-                                    .clipShape(Circle())
-                            default:
-                                Image(fallbackImageName)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 44, height: 44)
-                                    .clipShape(Circle())
+            ZStack(alignment: .leading) {
+                // Background Card Base
+                Color(hex: "131419")
+                
+                // Realtime artwork ambient background on the left side
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        if let url = iconURL {
+                            AsyncImage(url: url) { phase in
+                                switch phase {
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: geo.size.width * 0.45, height: geo.size.height)
+                                        .clipped()
+                                        .opacity(0.35)
+                                default:
+                                    Image(fallbackImageName)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: geo.size.width * 0.45, height: geo.size.height)
+                                        .clipped()
+                                        .opacity(0.35)
+                                }
                             }
+                        } else {
+                            Image(fallbackImageName)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: geo.size.width * 0.45, height: geo.size.height)
+                                .clipped()
+                                .opacity(0.35)
                         }
-                    } else {
-                        Image(fallbackImageName)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 44, height: 44)
-                            .clipShape(Circle())
+                        
+                        // Horizontal fade into dark background
+                        LinearGradient(
+                            stops: [
+                                .init(color: Color.clear, location: 0.0),
+                                .init(color: Color(hex: "131419").opacity(0.65), location: 0.25),
+                                .init(color: Color(hex: "131419"), location: 0.55)
+                            ],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
                     }
                 }
-                .shadow(color: Color.black.opacity(0.3), radius: 4, y: 2)
                 
-                // Clean Title
-                Text(title)
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.white)
-                
-                Spacer()
+                // Foreground Row
+                HStack(spacing: 14) {
+                    // Circular App Artwork
+                    ZStack {
+                        Circle()
+                            .fill(Color(hex: "1C1D24"))
+                            .frame(width: 44, height: 44)
+                        
+                        if let url = iconURL {
+                            AsyncImage(url: url) { phase in
+                                switch phase {
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 44, height: 44)
+                                        .clipShape(Circle())
+                                default:
+                                    Image(fallbackImageName)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 44, height: 44)
+                                        .clipShape(Circle())
+                                }
+                            }
+                        } else {
+                            Image(fallbackImageName)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 44, height: 44)
+                                .clipShape(Circle())
+                        }
+                    }
+                    .shadow(color: Color.black.opacity(0.4), radius: 4, y: 2)
+                    
+                    // Clean Title
+                    Text(title)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white)
+                    
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 14)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .background(Color(hex: "131419"))
+            .frame(height: 72)
             .cornerRadius(16)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(Color.white.opacity(0.06), lineWidth: 1)
             )
+            .clipShape(RoundedRectangle(cornerRadius: 16))
         }
     }
     
