@@ -1,122 +1,31 @@
-name: Build GodDataX iOS Pure IPA (OB56)
+name: Build GodDataX IPA
 
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
-  build-ipa:
-    name: Build & Export Pure IPA
+  build:
     runs-on: macos-14
-
     steps:
-      - name: 📥 Checkout Repository
+      - name: 📥 Checkout
         uses: actions/checkout@v4
 
-      - name: 📁 Prepare Project & Config
+      - name: 🛠️ Extract & Build Pure IPA
         run: |
-          if [ -d "GodDataX IOS OB56" ]; then
-            echo "Memindahkan isi subfolder ke root..."
-            cp -rn "GodDataX IOS OB56"/* . 2>/dev/null || true
-            cp -rn "GodDataX IOS OB56"/.* . 2>/dev/null || true
+          if [ -f "GodDataX_OB56_Project.zip" ]; then
+            unzip -o -q GodDataX_OB56_Project.zip
           fi
-
-          # Tulis project.yml yang 100% valid tanpa duplikasi Info.plist
-          cat << 'EOF' > project.yml
-name: GodDataX
-options:
-  bundleIdPrefix: com.kutoo
-  deploymentTarget:
-    iOS: "15.0"
-settings:
-  base:
-    PRODUCT_NAME: GodDataX
-    SWIFT_VERSION: "5.0"
-    CODE_SIGNING_ALLOWED: NO
-    CODE_SIGNING_REQUIRED: NO
-    CODE_SIGN_IDENTITY: ""
-targets:
-  GodDataX:
-    type: application
-    platform: iOS
-    deploymentTarget: "15.0"
-    sources:
-      - path: GodDataX
-        excludes:
-          - "Info.plist"
-    info:
-      path: GodDataX/Info.plist
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.kutoo.goddatax
-        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
-        INFOPLIST_FILE: GodDataX/Info.plist
-        TARGETED_DEVICE_FAMILY: "1,2"
-        SWIFT_VERSION: "5.0"
-        ENABLE_BITCODE: NO
-        IPHONEOS_DEPLOYMENT_TARGET: "15.0"
-        CODE_SIGNING_ALLOWED: NO
-        CODE_SIGNING_REQUIRED: NO
-        CODE_SIGN_IDENTITY: ""
-schemes:
-  GodDataX:
-    build:
-      targets:
-        GodDataX: all
-EOF
-          ls -la
-
-      - name: ⚙️ Setup XcodeGen
-        run: |
           brew install xcodegen
           xcodegen generate
-
-      - name: 🛠️ Build GodDataX App (Release iphoneos)
-        run: |
-          xcodebuild clean build \
-            -project GodDataX.xcodeproj \
-            -scheme GodDataX \
-            -configuration Release \
-            -destination "generic/platform=iOS" \
-            -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            AD_HOC_CODE_SIGNING_ALLOWED=YES
-
-      - name: 📦 Package into Pure .IPA
-        run: |
+          xcodebuild clean build -project GodDataX.xcodeproj -scheme GodDataX -configuration Release -destination "generic/platform=iOS" -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
           mkdir -p Payload
-          APP_PATH=$(find build -name "GodDataX.app" -type d | head -n 1)
-          echo "Found app at: $APP_PATH"
-          cp -r "$APP_PATH" Payload/
+          cp -r build/Build/Products/Release-iphoneos/GodDataX.app Payload/
           zip -qr GodDataX_OB56.ipa Payload
-          ls -lh GodDataX_OB56.ipa
 
-      - name: 🚀 Upload IPA Artifact
+      - name: 🚀 Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: GodDataX_OB56_iOS_IPA
+          name: GodDataX_OB56_IPA
           path: GodDataX_OB56.ipa
-          retention-days: 14
-
-      - name: 🏷️ Publish GitHub Release (Automated)
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v2.0-ob56
-          name: "GodDataX iOS v2.0 - OB56 Pure IPA"
-          body: |
-            ### 🚀 GodDataX iOS (OB56 Version)
-            - Platform: Pure Native iOS (Swift & SwiftUI)
-            - Target: Free Fire OB56 & Free Fire MAX OB56
-            - Realtime App Store Live Artwork
-            - Pure Standalone .IPA (No Domain)
-          files: GodDataX_OB56.ipa
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
