@@ -1,0 +1,39 @@
+name: Build GodDataX IPA
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Extract & Build Pure IPA
+        run: |
+          unzip -o -q GodDataX_OB56_Project.zip || true
+          xcodebuild clean build \
+            -project GodDataX.xcodeproj \
+            -target GodDataX \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
+          mkdir -p Payload
+          APP_PATH=$(find build -name "GodDataX.app" -type d | head -n 1)
+          echo "Found app at: $APP_PATH"
+          cp -r "$APP_PATH" Payload/
+          zip -qr GodDataX_OB56.ipa Payload
+          ls -lh GodDataX_OB56.ipa
+
+      - name: 🚀 Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: GodDataX_OB56_IPA
+          path: GodDataX_OB56.ipa
