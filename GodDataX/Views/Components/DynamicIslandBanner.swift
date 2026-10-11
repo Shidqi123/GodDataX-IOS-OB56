@@ -19,7 +19,7 @@ struct DynamicIslandBanner: View {
             Text("GODDATAX SECURED • OB56")
                 .font(.system(size: 11, weight: .black, design: .monospaced))
                 .foregroundColor(.white)
-                .tracking(1.2)
+                .kerning(1.2)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 7)

@@ -55,7 +55,7 @@ struct LoginView: View {
                                 endPoint: .bottom
                             )
                         )
-                        .tracking(3)
+                        .kerning(3)
                     
                     Text("iOS Edition • OB56 Support")
                         .font(.system(size: 13, weight: .medium, design: .monospaced))
