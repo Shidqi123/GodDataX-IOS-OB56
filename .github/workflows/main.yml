@@ -44,6 +44,7 @@ jobs:
             GodDataX_Build208.ipa
             GodDataX_Build209.ipa
             GodDataX_Build210.ipa
+            GodDataX_Build211.ipa
             GodDataX_Home.ipa
             GodDataX_com_goddatax_ios.ipa
         continue-on-error: true

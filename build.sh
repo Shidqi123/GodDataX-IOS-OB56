@@ -49,6 +49,7 @@ cp "GodDataX_v2_OB56.ipa" "GodDataX_Build207.ipa"
 cp "GodDataX_v2_OB56.ipa" "GodDataX_Build208.ipa"
 cp "GodDataX_v2_OB56.ipa" "GodDataX_Build209.ipa"
 cp "GodDataX_v2_OB56.ipa" "GodDataX_Build210.ipa"
+cp "GodDataX_v2_OB56.ipa" "GodDataX_Build211.ipa"
 cp "GodDataX_v2_OB56.ipa" "GodDataX_Home.ipa"
 cp "GodDataX_v2_OB56.ipa" "GodDataX_com_goddatax_ios.ipa"
 ls -lh GodDataX*.ipa

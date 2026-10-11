@@ -16,6 +16,7 @@ struct StatusProfileView: View {
     
     // Realtime timer starting from 00:00:00 when the user enters the app
     @State private var elapsedSeconds: Int = 0
+    @State private var ob57CountdownString: String = AuthService.getOB57CountdownString()
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     init(isModalActive: Binding<Bool> = .constant(false)) {
@@ -92,9 +93,9 @@ struct StatusProfileView: View {
                                         .font(.rajdhani(13, weight: .medium))
                                         .foregroundColor(Color.gray.opacity(0.85))
                                     
-                                    Text(authService.expiryDateString)
+                                    Text(ob57CountdownString)
                                         .font(.rajdhani(13, weight: .bold))
-                                        .foregroundColor(.white)
+                                        .foregroundColor(Color(hex: "FF1E27"))
                                 }
                             }
                         }
@@ -253,10 +254,12 @@ struct StatusProfileView: View {
         .animation(.spring(response: 0.38, dampingFraction: 0.8), value: activeNotice != nil)
         .onAppear {
             elapsedSeconds = max(0, Int(Date().timeIntervalSince(authService.sessionStartTime)))
+            ob57CountdownString = authService.getLiveCountdownString(dayLabel: lang.text(id: "Hari", en: "Days"))
             authService.syncUserWithFirebase()
         }
         .onReceive(timer) { _ in
             elapsedSeconds = max(0, Int(Date().timeIntervalSince(authService.sessionStartTime)))
+            ob57CountdownString = authService.getLiveCountdownString(dayLabel: lang.text(id: "Hari", en: "Days"))
         }
     }
     

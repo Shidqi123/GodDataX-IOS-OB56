@@ -38,21 +38,54 @@ class AuthService: ObservableObject {
     private let hwidStorage = "goddatax_device_hwid"
     private let deviceUserStorage = "goddatax_device_user_id"
     
-    static func getOB57CountdownString() -> String {
+    static func getOB57CountdownString(dayLabel: String = "Hari") -> String {
         let calendar = Calendar.current
         var comps = DateComponents()
         comps.year = 2026
         comps.month = 11
         comps.day = 27
+        comps.hour = 0
+        comps.minute = 0
+        comps.second = 0
         if let target = calendar.date(from: comps) {
-            let days = calendar.dateComponents([.day], from: Date(), to: target).day ?? 47
-            if days > 0 {
-                return "OB57 (\(days) Hari lagi)"
-            } else if days == 0 {
-                return "OB57 (Hari ini)"
+            let diff = Int(target.timeIntervalSince(Date()))
+            if diff > 0 {
+                let days = diff / 86400
+                let hours = (diff % 86400) / 3600
+                let minutes = (diff % 3600) / 60
+                let seconds = diff % 60
+                if days > 0 {
+                    return String(format: "%d %@ %02d:%02d:%02d", days, dayLabel, hours, minutes, seconds)
+                } else {
+                    return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+                }
             }
         }
-        return "OB57 (Segera)"
+        return "00:00:00"
+    }
+    
+    func getLiveCountdownString(dayLabel: String = "Hari") -> String {
+        if !expiryDateString.isEmpty && !expiryDateString.contains("OB56") && !expiryDateString.contains("OB57") && !expiryDateString.contains("Hari") && !expiryDateString.contains("Days") {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            if let targetDate = formatter.date(from: expiryDateString) {
+                let diff = Int(targetDate.timeIntervalSince(Date()))
+                if diff > 0 {
+                    let days = diff / 86400
+                    let hours = (diff % 86400) / 3600
+                    let minutes = (diff % 3600) / 60
+                    let seconds = diff % 60
+                    if days > 0 {
+                        return String(format: "%d %@ %02d:%02d:%02d", days, dayLabel, hours, minutes, seconds)
+                    } else {
+                        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+                    }
+                } else {
+                    return "Kedaluwarsa"
+                }
+            }
+        }
+        return AuthService.getOB57CountdownString(dayLabel: dayLabel)
     }
     
     init() {
