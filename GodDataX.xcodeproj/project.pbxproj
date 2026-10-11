@@ -1,0 +1,336 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA010001 /* GodDataXApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010001 /* GodDataXApp.swift */; };
+		AA010002 /* ConfigModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010002 /* ConfigModel.swift */; };
+		AA010003 /* FreeFireIconManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010003 /* FreeFireIconManager.swift */; };
+		AA010004 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010004 /* AuthService.swift */; };
+		AA010005 /* DynamicIslandBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010005 /* DynamicIslandBanner.swift */; };
+		AA010006 /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010006 /* GlassCard.swift */; };
+		AA010007 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010007 /* LoginView.swift */; };
+		AA010008 /* MainDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010008 /* MainDashboardView.swift */; };
+		AA010009 /* FeaturesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010009 /* FeaturesView.swift */; };
+		AA010010 /* StatusProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010010 /* StatusProfileView.swift */; };
+		AA010011 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010011 /* ContentView.swift */; };
+		AA010012 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB010012 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		BB000001 /* GodDataX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GodDataX.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB010001 /* GodDataXApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GodDataXApp.swift; sourceTree = "<group>"; };
+		BB010002 /* ConfigModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigModel.swift; sourceTree = "<group>"; };
+		BB010003 /* FreeFireIconManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeFireIconManager.swift; sourceTree = "<group>"; };
+		BB010004 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		BB010005 /* DynamicIslandBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicIslandBanner.swift; sourceTree = "<group>"; };
+		BB010006 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
+		BB010007 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		BB010008 /* MainDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainDashboardView.swift; sourceTree = "<group>"; };
+		BB010009 /* FeaturesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesView.swift; sourceTree = "<group>"; };
+		BB010010 /* StatusProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusProfileView.swift; sourceTree = "<group>"; };
+		BB010011 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		BB010012 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BB010013 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CC000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		DD000001 = {
+			isa = PBXGroup;
+			children = (
+				DD000002 /* GodDataX */,
+				DD000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DD000002 /* GodDataX */ = {
+			isa = PBXGroup;
+			children = (
+				DD000004 /* App */,
+				DD000005 /* Models */,
+				DD000006 /* Services */,
+				DD000007 /* Views */,
+				BB010012 /* Assets.xcassets */,
+				BB010013 /* Info.plist */,
+			);
+			path = GodDataX;
+			sourceTree = "<group>";
+		};
+		DD000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BB000001 /* GodDataX.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DD000004 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				BB010001 /* GodDataXApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		DD000005 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				BB010002 /* ConfigModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		DD000006 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				BB010003 /* FreeFireIconManager.swift */,
+				BB010004 /* AuthService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		DD000007 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DD000008 /* Components */,
+				BB010007 /* LoginView.swift */,
+				BB010008 /* MainDashboardView.swift */,
+				BB010009 /* FeaturesView.swift */,
+				BB010010 /* StatusProfileView.swift */,
+				BB010011 /* ContentView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		DD000008 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				BB010005 /* DynamicIslandBanner.swift */,
+				BB010006 /* GlassCard.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		EE000001 /* GodDataX */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FF000001 /* Build configuration list for PBXNativeTarget "GodDataX" */;
+			buildPhases = (
+				CC000002 /* Sources */,
+				CC000001 /* Frameworks */,
+				CC000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GodDataX;
+			productName = GodDataX;
+			productReference = BB000001 /* GodDataX.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FF000002 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					EE000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = FF000003 /* Build configuration list for PBXProject "GodDataX" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DD000001;
+			productRefGroup = DD000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EE000001 /* GodDataX */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CC000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA010012 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CC000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA010001 /* GodDataXApp.swift in Sources */,
+				AA010002 /* ConfigModel.swift in Sources */,
+				AA010003 /* FreeFireIconManager.swift in Sources */,
+				AA010004 /* AuthService.swift in Sources */,
+				AA010005 /* DynamicIslandBanner.swift in Sources */,
+				AA010006 /* GlassCard.swift in Sources */,
+				AA010007 /* LoginView.swift in Sources */,
+				AA010008 /* MainDashboardView.swift in Sources */,
+				AA010009 /* FeaturesView.swift in Sources */,
+				AA010010 /* StatusProfileView.swift in Sources */,
+				AA010011 /* ContentView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		GG000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		GG000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		GG000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				CURRENT_PROJECT_VERSION = 56;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = GodDataX/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kutoo.goddatax;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		GG000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				CURRENT_PROJECT_VERSION = 56;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = GodDataX/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kutoo.goddatax;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FF000001 /* Build configuration list for PBXNativeTarget "GodDataX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				GG000003 /* Debug */,
+				GG000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FF000003 /* Build configuration list for PBXProject "GodDataX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				GG000001 /* Debug */,
+				GG000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FF000002 /* Project object */;
+}

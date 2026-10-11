@@ -1,14 +1,24 @@
 name: Build GodDataX IPA
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
-      - run: |
-          unzip -o -q GodDataX_OB56_Project.zip || true
-          bash build.sh
-      - uses: actions/upload-artifact@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build IPA
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
         with:
           name: GodDataX_OB56_IPA
           path: GodDataX_OB56.ipa
+          if-no-files-found: error

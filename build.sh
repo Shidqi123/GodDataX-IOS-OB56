@@ -1,0 +1,43 @@
+#!/bin/bash
+set -e
+
+echo "=== 1. Checking Project ==="
+ls -la
+
+# If project is inside a subfolder or zip, handle it
+if [ ! -d "GodDataX.xcodeproj" ] && [ -f "GodDataX_OB56_Project.zip" ]; then
+    echo "Extracting zip..."
+    unzip -o -q GodDataX_OB56_Project.zip || true
+fi
+
+if [ ! -d "GodDataX.xcodeproj" ] && [ -d "GodDataX IOS OB56/GodDataX.xcodeproj" ]; then
+    echo "Copying from subfolder..."
+    cp -r "GodDataX IOS OB56"/* .
+fi
+
+echo "=== 2. Building GodDataX with Xcode ==="
+xcodebuild clean build \
+  -project GodDataX.xcodeproj \
+  -scheme GodDataX \
+  -configuration Release \
+  -sdk iphoneos \
+  -destination 'generic/platform=iOS' \
+  CODE_SIGNING_ALLOWED=NO \
+  CODE_SIGNING_REQUIRED=NO \
+  CODE_SIGN_IDENTITY="" \
+  AD_HOC_CODE_SIGNING_ALLOWED=YES \
+  -derivedDataPath build
+
+echo "=== 3. Packaging IPA ==="
+mkdir -p Payload
+APP_PATH=$(find build -name "GodDataX.app" -type d | head -n 1)
+if [ -z "$APP_PATH" ]; then
+    echo "ERROR: GodDataX.app not found in build directory!"
+    find build
+    exit 1
+fi
+echo "Found app at: $APP_PATH"
+cp -r "$APP_PATH" Payload/
+zip -qr GodDataX_OB56.ipa Payload
+ls -lh GodDataX_OB56.ipa
+echo "=== Done! GodDataX_OB56.ipa generated successfully ==="
