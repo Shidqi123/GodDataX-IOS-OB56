@@ -39,7 +39,7 @@ struct MainDashboardView: View {
                     // Header: GodDataX iOS
                     HStack {
                         Text("GodDataX iOS")
-                            .font(.system(size: 30, weight: .bold, design: .rounded))
+                            .font(.rajdhani(32, weight: .bold))
                             .foregroundColor(.white)
                         
                         Spacer()
@@ -51,7 +51,7 @@ struct MainDashboardView: View {
                     VStack(alignment: .leading, spacing: 14) {
                         HStack {
                             Text("Library")
-                                .font(.system(size: 15, weight: .bold, design: .rounded))
+                                .font(.rajdhani(18, weight: .bold))
                                 .foregroundColor(.white)
                             
                             Spacer()
@@ -90,7 +90,7 @@ struct MainDashboardView: View {
                     // SECTION: System Utilities
                     VStack(alignment: .leading, spacing: 14) {
                         Text("SYSTEM UTILITIES")
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .font(.rajdhani(16, weight: .bold))
                             .foregroundColor(.white)
                             .padding(.horizontal, 20)
                         
@@ -109,10 +109,10 @@ struct MainDashboardView: View {
                                     
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text("Reload SpringBoard")
-                                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                            .font(.rajdhani(17, weight: .bold))
                                             .foregroundColor(.white)
                                         Text("Flush cache & reload interface")
-                                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                                            .font(.rajdhani(13, weight: .medium))
                                             .foregroundColor(.gray)
                                     }
                                     
@@ -121,7 +121,7 @@ struct MainDashboardView: View {
                                     Image(systemName: "chevron.right")
                                         .font(.system(size: 13, weight: .bold, design: .rounded))
                                         .foregroundColor(.gray)
-                                }
+                                 }
                                 .padding()
                                 .background(Color(hex: "131419"))
                                 .cornerRadius(16)
@@ -142,10 +142,10 @@ struct MainDashboardView: View {
                                     
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text("Free Up RAM Cache")
-                                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                            .font(.rajdhani(17, weight: .bold))
                                             .foregroundColor(.white)
                                         Text("Optimize RAM for 120 FPS gaming")
-                                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                                            .font(.rajdhani(13, weight: .medium))
                                             .foregroundColor(.gray)
                                     }
                                     
@@ -362,7 +362,7 @@ struct GameCompactRow: View {
                     
                     // Clean Title
                     Text(title)
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(.rajdhani(18, weight: .bold))
                         .foregroundColor(.white)
                     
                     Spacer()
@@ -412,10 +412,10 @@ struct GameLaunchSheet: View {
                     // Left: Game Name + Bundle ID
                     VStack(alignment: .leading, spacing: 3) {
                         Text(game.title)
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .font(.rajdhani(17, weight: .bold))
                             .foregroundColor(.white)
                         Text(game.bundleId)
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .font(.rajdhani(12, weight: .medium))
                             .foregroundColor(Color.gray)
                     }
                     
@@ -441,10 +441,10 @@ struct GameLaunchSheet: View {
                     // Right: Mode Game Status in RED theme
                     VStack(alignment: .trailing, spacing: 3) {
                         Text("Mode Game")
-                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .font(.rajdhani(14, weight: .bold))
                             .foregroundColor(.white)
                         Text(selectedMode)
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .font(.rajdhani(13, weight: .bold))
                             .foregroundColor(Color(hex: "FF1E27")) // Red theme
                     }
                 }
@@ -469,7 +469,7 @@ struct GameLaunchSheet: View {
                             .foregroundColor(selectedMode == "Competitive" ? Color(hex: "FF1E27") : Color.gray)
                         
                         Text("Competitive")
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .font(.rajdhani(16, weight: .bold))
                             .foregroundColor(.white)
                     }
                     .frame(maxWidth: .infinity)
@@ -503,7 +503,7 @@ struct GameLaunchSheet: View {
                             .foregroundColor(selectedMode == "Balance" ? Color(hex: "FF1E27") : Color.gray)
                         
                         Text("Balance")
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .font(.rajdhani(16, weight: .bold))
                             .foregroundColor(.white)
                     }
                     .frame(maxWidth: .infinity)
@@ -635,26 +635,26 @@ struct BottomNoticeCard: View {
         VStack(alignment: .leading, spacing: 14) {
             // Title matching Image 2 style
             Text(title)
-                .font(.system(size: 19, weight: .bold, design: .rounded))
+                .font(.rajdhani(24, weight: .bold))
                 .foregroundColor(.white)
             
             // Description
             Text(message)
-                .font(.system(size: 13, weight: .medium, design: .rounded))
-                .foregroundColor(Color.gray.opacity(0.9))
-                .lineSpacing(3)
+                .font(.rajdhani(16, weight: .medium))
+                .foregroundColor(Color.white.opacity(0.85))
+                .lineSpacing(4)
                 .fixedSize(horizontal: false, vertical: true)
             
-            // Full Width Action Button matching Image 2
+            // Full Width Action Button matching Image 2 in RED theme
             Button(action: onDismiss) {
                 Text("OK")
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .font(.rajdhani(18, weight: .bold))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 48)
-                    .background(Color(hex: "E64A19")) // Vibrant red-orange from Image 2
+                    .frame(height: 50)
+                    .background(Color(hex: "FF1E27")) // GodDataX Red theme
                     .clipShape(Capsule())
-                    .shadow(color: Color(hex: "E64A19").opacity(0.4), radius: 6, y: 2)
+                    .shadow(color: Color(hex: "FF1E27").opacity(0.5), radius: 8, y: 3)
             }
             .padding(.top, 4)
         }

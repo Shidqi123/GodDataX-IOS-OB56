@@ -31,10 +31,10 @@ struct ContentView: View {
                     // Floating Bottom Navbar - Hide when modal/notice sheet is active to prevent collision
                     if !isModalActive {
                         HStack(spacing: 8) {
-                            // Tab 0: Mulai Game (Restored to Nebula's gamecontroller icon)
+                            // Tab 0: Home
                             NavBarButton(
-                                icon: "gamecontroller.fill",
-                                title: "Mulai Game",
+                                icon: "house.fill",
+                                title: "Home",
                                 isSelected: selectedTab == 0
                             ) {
                                 switchTab(0)
@@ -103,7 +103,7 @@ struct NavBarButton: View {
                 
                 if isSelected {
                     Text(title)
-                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .font(.rajdhani(15, weight: .bold))
                         .foregroundColor(.white)
                 }
             }

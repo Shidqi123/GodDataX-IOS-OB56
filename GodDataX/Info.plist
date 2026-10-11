@@ -19,7 +19,14 @@
 	<key>CFBundleShortVersionString</key>
 	<string>2.0</string>
 	<key>CFBundleVersion</key>
-	<string>204</string>
+	<string>205</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Rajdhani-Bold.ttf</string>
+		<string>Rajdhani-SemiBold.ttf</string>
+		<string>Rajdhani-Medium.ttf</string>
+		<string>Rajdhani-Regular.ttf</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchScreen</key>

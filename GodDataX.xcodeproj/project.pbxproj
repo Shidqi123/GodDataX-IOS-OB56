@@ -19,6 +19,11 @@
 		AA010010 /* StatusProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010010 /* StatusProfileView.swift */; };
 		AA010011 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010011 /* ContentView.swift */; };
 		AA010012 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB010012 /* Assets.xcassets */; };
+		AA010013 /* FontManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010014 /* FontManager.swift */; };
+		AA010014 /* Rajdhani-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BB010015 /* Rajdhani-Bold.ttf */; };
+		AA010015 /* Rajdhani-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BB010016 /* Rajdhani-SemiBold.ttf */; };
+		AA010016 /* Rajdhani-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BB010017 /* Rajdhani-Medium.ttf */; };
+		AA010017 /* Rajdhani-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BB010018 /* Rajdhani-Regular.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +41,11 @@
 		BB010011 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BB010012 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BB010013 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BB010014 /* FontManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontManager.swift; sourceTree = "<group>"; };
+		BB010015 /* Rajdhani-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Fonts/Rajdhani-Bold.ttf; sourceTree = "<group>"; };
+		BB010016 /* Rajdhani-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Fonts/Rajdhani-SemiBold.ttf; sourceTree = "<group>"; };
+		BB010017 /* Rajdhani-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Fonts/Rajdhani-Medium.ttf; sourceTree = "<group>"; };
+		BB010018 /* Rajdhani-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Fonts/Rajdhani-Regular.ttf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +74,7 @@
 				DD000005 /* Models */,
 				DD000006 /* Services */,
 				DD000007 /* Views */,
+				DD000009 /* Fonts */,
 				BB010012 /* Assets.xcassets */,
 				BB010013 /* Info.plist */,
 			);
@@ -82,8 +93,20 @@
 			isa = PBXGroup;
 			children = (
 				BB010001 /* GodDataXApp.swift */,
+				BB010014 /* FontManager.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		DD000009 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				BB010015 /* Rajdhani-Bold.ttf */,
+				BB010016 /* Rajdhani-SemiBold.ttf */,
+				BB010017 /* Rajdhani-Medium.ttf */,
+				BB010018 /* Rajdhani-Regular.ttf */,
+			);
+			name = Fonts;
 			sourceTree = "<group>";
 		};
 		DD000005 /* Models */ = {
@@ -184,6 +207,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA010012 /* Assets.xcassets in Resources */,
+				AA010014 /* Rajdhani-Bold.ttf in Resources */,
+				AA010015 /* Rajdhani-SemiBold.ttf in Resources */,
+				AA010016 /* Rajdhani-Medium.ttf in Resources */,
+				AA010017 /* Rajdhani-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -205,6 +232,7 @@
 				AA010009 /* FeaturesView.swift in Sources */,
 				AA010010 /* StatusProfileView.swift in Sources */,
 				AA010011 /* ContentView.swift in Sources */,
+				AA010013 /* FontManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -269,7 +297,7 @@
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_IDENTITY = "";
-				CURRENT_PROJECT_VERSION = 204;
+				CURRENT_PROJECT_VERSION = 205;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GodDataX/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -293,7 +321,7 @@
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_IDENTITY = "";
-				CURRENT_PROJECT_VERSION = 204;
+				CURRENT_PROJECT_VERSION = 205;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GodDataX/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
