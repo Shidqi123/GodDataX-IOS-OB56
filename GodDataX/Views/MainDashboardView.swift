@@ -195,7 +195,7 @@ struct MainDashboardView: View {
                 .zIndex(20)
             }
             
-            // 2. Custom Bottom Notice Sheet (Image 3 style replacing alert)
+            // 2. Custom Bottom Notice Sheet (Image 2 style: Edge-to-Edge with 0 horizontal space)
             if let notice = activeNotice {
                 VStack {
                     Spacer()
@@ -206,6 +206,7 @@ struct MainDashboardView: View {
                         dismissAllModals()
                     }
                 }
+                .ignoresSafeArea(.all, edges: .bottom)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
                 .zIndex(30)
             }
@@ -558,7 +559,7 @@ struct GameLaunchSheet: View {
                             }
                             .onEnded { val in
                                 let maxDrag = sliderGeo.size.width - 84
-                                if slideOffset > maxDrag * 0.55 {
+                                if slideOffset > maxDrag * 0.65 {
                                     withAnimation(.spring()) {
                                         slideOffset = maxDrag
                                     }
@@ -592,61 +593,91 @@ struct GameLaunchSheet: View {
         let gen = UINotificationFeedbackGenerator()
         gen.notificationOccurred(.success)
         
-        if let url = URL(string: game.scheme) {
-            if UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.open(url, options: [:]) { _ in
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+        // 1. Direct Launch via LSApplicationWorkspace to completely bypass iOS "Buka di Free Fire?" prompt
+        if let workspaceClass = NSClassFromString("LSApplicationWorkspace") as? NSObject.Type {
+            let defaultWorkspaceSelector = NSSelectorFromString("defaultWorkspace")
+            if workspaceClass.responds(to: defaultWorkspaceSelector),
+               let workspace = workspaceClass.perform(defaultWorkspaceSelector)?.takeUnretainedValue() {
+                let openAppSelector = NSSelectorFromString("openApplicationWithBundleID:")
+                if workspace.responds(to: openAppSelector) {
+                    _ = workspace.perform(openAppSelector, with: game.bundleId)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
                         onClose()
                     }
+                    return
                 }
-            } else {
-                if let appStoreURL = URL(string: "https://apps.apple.com/app/id1300146617") {
-                    UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
+            }
+        }
+        
+        // 2. Fallback to URL Scheme
+        if let url = URL(string: game.scheme) {
+            UIApplication.shared.open(url, options: [:]) { _ in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                    onClose()
                 }
-                onClose()
             }
         }
     }
 }
 
-// Subcomponent: Custom Bottom Notice Card matching Image 3 reference
+// Subcomponent: Custom Bottom Notice Card matching Image 2 reference (Edge-to-Edge, Compact, 0 horizontal space)
 struct BottomNoticeCard: View {
     let title: String
     let message: String
     let onDismiss: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            // Title matching Image 3 style
+        VStack(alignment: .leading, spacing: 14) {
+            // Title matching Image 2 style
             Text(title)
-                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .font(.system(size: 19, weight: .bold, design: .rounded))
                 .foregroundColor(.white)
             
             // Description
             Text(message)
-                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundColor(Color.gray.opacity(0.9))
-                .lineSpacing(4)
+                .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)
             
-            // Full Width Action Button matching Image 3
+            // Full Width Action Button matching Image 2
             Button(action: onDismiss) {
                 Text("OK")
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 52)
-                    .background(Color(hex: "FF1E27")) // GodDataX Red
+                    .frame(height: 48)
+                    .background(Color(hex: "E64A19")) // Vibrant red-orange from Image 2
                     .clipShape(Capsule())
-                    .shadow(color: Color(hex: "FF1E27").opacity(0.4), radius: 8, y: 3)
+                    .shadow(color: Color(hex: "E64A19").opacity(0.4), radius: 6, y: 2)
             }
-            .padding(.top, 6)
+            .padding(.top, 4)
         }
-        .padding(22)
+        .padding(.horizontal, 22)
+        .padding(.top, 20)
+        .padding(.bottom, 36)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(hex: "12141A"))
-        .cornerRadius(26)
-        .overlay(RoundedRectangle(cornerRadius: 26).stroke(Color.white.opacity(0.12), lineWidth: 1))
-        .padding(.horizontal, 16)
-        .padding(.bottom, 28)
+        .clipShape(RoundedCornerShape(radius: 28, corners: [.topLeft, .topRight]))
+        .overlay(
+            RoundedCornerShape(radius: 28, corners: [.topLeft, .topRight])
+                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+        )
     }
 }
+
+// Shape helper for specific rounded corners
+struct RoundedCornerShape: Shape {
+    var radius: CGFloat = 28
+    var corners: UIRectCorner = [.topLeft, .topRight]
+
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(
+            roundedRect: rect,
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: radius, height: radius)
+        )
+        return Path(path.cgPath)
+    }
+}
+
