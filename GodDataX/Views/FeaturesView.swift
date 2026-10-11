@@ -23,11 +23,11 @@ struct FeaturesView: View {
                 // Header
                 VStack(spacing: 4) {
                     Text("OB56 FEATURES")
-                        .font(.system(size: 24, weight: .black, design: .rounded))
+                        .font(.rajdhani(26, weight: .bold))
                         .foregroundColor(.white)
                     
                     Text("Configured for Free Fire OB56 Engine")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.rajdhani(13, weight: .medium))
                         .foregroundColor(Color(hex: "FF1E27"))
                 }
                 .padding(.top, 14)
@@ -39,7 +39,7 @@ struct FeaturesView: View {
                             .foregroundColor(.green)
                             .font(.system(size: 14))
                         Text("Security & Bypass")
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .font(.rajdhani(16, weight: .bold))
                             .foregroundColor(.white)
                     }
                     .padding(.horizontal, 4)
@@ -75,7 +75,7 @@ struct FeaturesView: View {
                             .foregroundColor(Color(hex: "FF1E27"))
                             .font(.system(size: 14))
                         Text("Aim & Combat Tuning")
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .font(.rajdhani(16, weight: .bold))
                             .foregroundColor(.white)
                     }
                     .padding(.horizontal, 4)
@@ -131,7 +131,7 @@ struct FeaturesView: View {
                             .foregroundColor(Color(hex: "FF1E27"))
                             .font(.system(size: 14))
                         Text("Device Boost (iOS)")
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .font(.rajdhani(16, weight: .bold))
                             .foregroundColor(.white)
                     }
                     .padding(.horizontal, 4)

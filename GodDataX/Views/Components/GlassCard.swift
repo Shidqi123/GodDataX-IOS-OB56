@@ -46,12 +46,12 @@ struct CustomToggleRow: View {
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.rajdhani(16, weight: .bold))
                     .foregroundColor(.white)
                 
                 Text(subtitle)
-                    .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(Color.gray.opacity(0.8))
+                    .font(.rajdhani(13, weight: .medium))
+                    .foregroundColor(Color.gray.opacity(0.85))
             }
             
             Spacer()

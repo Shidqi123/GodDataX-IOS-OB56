@@ -61,7 +61,7 @@ struct LoginView: View {
                     }
                     
                     Text("GodDataX iOS")
-                        .font(.system(size: 32, weight: .black, design: .rounded))
+                        .font(.rajdhani(34, weight: .bold))
                         .kerning(1.5)
                         .foregroundStyle(
                             LinearGradient(
@@ -85,6 +85,7 @@ struct LoginView: View {
                                 .font(.system(size: 16))
                             
                             SecureField("Masukkan Lisensi", text: $inputKey)
+                                .font(.rajdhani(16, weight: .semibold))
                                 .foregroundColor(.white)
                                 .autocapitalization(.allCharacters)
                                 .disableAutocorrection(true)
@@ -107,7 +108,7 @@ struct LoginView: View {
                         // Error Notice without emojis
                         if let error = authService.errorMessage {
                             Text(error)
-                                .font(.system(size: 13, weight: .semibold))
+                                .font(.rajdhani(14, weight: .semibold))
                                 .foregroundColor(Color(hex: "FF3B30"))
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 4)
@@ -122,7 +123,7 @@ struct LoginView: View {
                                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                 } else {
                                     Text("Login")
-                                        .font(.system(size: 16, weight: .bold))
+                                        .font(.rajdhani(18, weight: .bold))
                                 }
                             }
                             .foregroundColor(.white)
