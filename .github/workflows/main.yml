@@ -14,15 +14,24 @@ jobs:
 
       - name: 🛠️ Extract & Build Pure IPA
         run: |
-          if [ -f "GodDataX_OB56_Project.zip" ]; then
-            unzip -o -q GodDataX_OB56_Project.zip
-          fi
-          brew install xcodegen
-          xcodegen generate
-          xcodebuild clean build -project GodDataX.xcodeproj -scheme GodDataX -configuration Release -destination "generic/platform=iOS" -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+          unzip -o -q GodDataX_OB56_Project.zip || true
+          xcodebuild clean build \
+            -project GodDataX.xcodeproj \
+            -target GodDataX \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
           mkdir -p Payload
-          cp -r build/Build/Products/Release-iphoneos/GodDataX.app Payload/
+          APP_PATH=$(find build -name "GodDataX.app" -type d | head -n 1)
+          echo "Found app at: $APP_PATH"
+          cp -r "$APP_PATH" Payload/
           zip -qr GodDataX_OB56.ipa Payload
+          ls -lh GodDataX_OB56.ipa
 
       - name: 🚀 Upload IPA
         uses: actions/upload-artifact@v4
