@@ -21,7 +21,7 @@ struct FeaturesView: View {
                 
                 // Group 1: Optimasi Sentuhan & Layar Free Fire
                 VStack(alignment: .leading, spacing: 10) {
-                    Text(lang.text(id: "Optimasi Sentuhan & Layar (Free Fire)", en: "Touch & Display Tuning (Free Fire)"))
+                    Text(lang.text(id: "Fitur Utama", en: "Main Features"))
                         .font(.rajdhani(16, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 4)
@@ -40,7 +40,7 @@ struct FeaturesView: View {
                             Divider().background(Color.white.opacity(0.1))
                             
                             CustomToggleRow(
-                                title: lang.text(id: "Responsif Sentuhan Ekstrem (Zero-Delay)", en: "Zero-Latency Touch Sampling"),
+                                title: lang.text(id: "Responsif Sentuhan Ekstrem", en: "Extreme Touch Response"),
                                 subtitle: lang.text(id: "Pangkas latensi sampling digitizer ke tingkat tertinggi untuk respon instan", en: "Minimize digitizer polling latency for instant touch input response"),
                                 isOn: $touchSampling,
                                 onChange: { val in
@@ -88,7 +88,7 @@ struct FeaturesView: View {
                 
                 // Group 2: Konektivitas & Audio Game
                 VStack(alignment: .leading, spacing: 10) {
-                    Text(lang.text(id: "Konektivitas & Audio Game", en: "Connectivity & Game Audio"))
+                    Text(lang.text(id: "Fitur Tambahan", en: "Additional Features"))
                         .font(.rajdhani(16, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 4)

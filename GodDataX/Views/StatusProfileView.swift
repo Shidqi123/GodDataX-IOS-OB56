@@ -104,42 +104,7 @@ struct StatusProfileView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 12)
                     
-                    // 2. PANTAU USER CARD (Changed from Pemantauan Layanan, starting from 00:00:00, without PID/UID/VER)
-                    GlassCard(borderColor: Color.white.opacity(0.08), cornerRadius: 20) {
-                        VStack(alignment: .leading, spacing: 14) {
-                            // Header Row
-                            HStack {
-                                Text(lang.text(id: "Pantau User", en: "Monitor User"))
-                                    .font(.rajdhani(16, weight: .bold))
-                                    .foregroundColor(Color.white.opacity(0.85))
-                                
-                                Spacer()
-                                
-                                // Status Pill in RED Theme
-                                HStack(spacing: 5) {
-                                    Circle()
-                                        .fill(Color(hex: "FF1E27"))
-                                        .frame(width: 7, height: 7)
-                                    Text(lang.text(id: "Terhubung", en: "Connected"))
-                                        .font(.rajdhani(12, weight: .bold))
-                                        .foregroundColor(Color(hex: "FF1E27"))
-                                }
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 4)
-                                .background(Color(hex: "FF1E27").opacity(0.12))
-                                .clipShape(Capsule())
-                                .overlay(Capsule().stroke(Color(hex: "FF1E27").opacity(0.3), lineWidth: 1))
-                            }
-                            
-                            // Realtime Digital Timer starting when user enters app (HH:MM:SS)
-                            Text(formatTimer(elapsedSeconds))
-                                .font(.rajdhani(38, weight: .bold))
-                                .foregroundColor(Color(hex: "FF1E27")) // Theme Red
-                                .padding(.vertical, 4)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    
+
                     // 3. SETELAN DASAR CARD (Without Key Mapping, with custom bottom popup sheet for Bahasa)
                     VStack(alignment: .leading, spacing: 8) {
                         Text(lang.text(id: "Setelan dasar", en: "Basic Settings"))

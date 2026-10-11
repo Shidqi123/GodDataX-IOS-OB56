@@ -447,19 +447,84 @@ struct GameCompactRow: View {
     }
 }
 
-// Subcomponent: GameLaunchSheet matching Image 1 with RED theme and zero-delay artwork
+// Subcomponent: Custom Vector Rocket Icon for Game Launch Sheet matching Image 3 reference
+struct RocketShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let w = rect.width
+        let h = rect.height
+        
+        // Stylized rocket angled 45 degrees pointing towards top-right
+        path.move(to: CGPoint(x: w * 0.88, y: h * 0.12))
+        path.addQuadCurve(
+            to: CGPoint(x: w * 0.62, y: h * 0.62),
+            control: CGPoint(x: w * 0.85, y: h * 0.40)
+        )
+        path.addLine(to: CGPoint(x: w * 0.82, y: h * 0.75))
+        path.addQuadCurve(
+            to: CGPoint(x: w * 0.54, y: h * 0.71),
+            control: CGPoint(x: w * 0.70, y: h * 0.75)
+        )
+        path.addLine(to: CGPoint(x: w * 0.48, y: h * 0.77))
+        path.addLine(to: CGPoint(x: w * 0.42, y: h * 0.71))
+        path.addQuadCurve(
+            to: CGPoint(x: w * 0.25, y: h * 0.82),
+            control: CGPoint(x: w * 0.30, y: h * 0.70)
+        )
+        path.addLine(to: CGPoint(x: w * 0.38, y: h * 0.62))
+        path.addQuadCurve(
+            to: CGPoint(x: w * 0.88, y: h * 0.12),
+            control: CGPoint(x: w * 0.40, y: h * 0.15)
+        )
+        path.closeSubpath()
+        return path
+    }
+}
+
+struct GamingRocketIcon: View {
+    var color: Color = Color(hex: "FF1E27")
+    var size: CGFloat = 34
+    
+    var body: some View {
+        ZStack {
+            RocketShape()
+                .fill(color)
+            
+            // Central round porthole
+            Circle()
+                .fill(Color(hex: "12141A"))
+                .frame(width: size * 0.22, height: size * 0.22)
+                .offset(x: size * 0.04, y: -size * 0.04)
+            
+            // Thrust flame plume at bottom-left
+            Path { p in
+                let w = size
+                let h = size
+                p.move(to: CGPoint(x: w * 0.42, y: h * 0.74))
+                p.addLine(to: CGPoint(x: w * 0.26, y: h * 0.90))
+                p.addLine(to: CGPoint(x: w * 0.48, y: h * 0.80))
+                p.closeSubpath()
+            }
+            .fill(color.opacity(0.85))
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+// Subcomponent: GameLaunchSheet matching Image 3 with RED theme and zero-delay artwork
 struct GameLaunchSheet: View {
     let game: GameLaunchInfo
     let onClose: () -> Void
     
     @ObservedObject var iconManager = FreeFireIconManager.shared
+    @ObservedObject var lang = LanguageManager.shared
     @State private var selectedMode: String = "Competitive"
     @State private var slideOffset: CGFloat = 0
     @State private var isLaunching = false
     
     var body: some View {
         VStack(spacing: 16) {
-            // Top Header Card with Realtime Artwork Background
+            // Top Header Card with Realtime Artwork Background (Icon on LEFT matching Image 3)
             ZStack(alignment: .leading) {
                 Color(hex: "171922")
                 
@@ -470,15 +535,30 @@ struct GameLaunchSheet: View {
                         .scaledToFill()
                         .frame(width: geo.size.width, height: geo.size.height)
                         .clipped()
-                        .opacity(0.22)
-                        .blur(radius: 3)
+                        .opacity(0.24)
+                        .blur(radius: 2.5)
                 }
                 
-                HStack {
-                    // Left: Game Name + Bundle ID
+                HStack(spacing: 14) {
+                    // Left: Circular Game Icon matching Image 3
+                    ZStack {
+                        Circle()
+                            .fill(Color(hex: "222430"))
+                            .frame(width: 48, height: 48)
+                        
+                        Image(uiImage: iconManager.getImage(for: game.bundleId))
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 48, height: 48)
+                            .clipShape(Circle())
+                    }
+                    .overlay(Circle().stroke(Color.white.opacity(0.18), lineWidth: 1.5))
+                    .shadow(color: Color.black.opacity(0.5), radius: 5, y: 2)
+                    
+                    // Center-Left: Game Name + Bundle ID
                     VStack(alignment: .leading, spacing: 3) {
                         Text(game.title)
-                            .font(.rajdhani(17, weight: .bold))
+                            .font(.rajdhani(18, weight: .bold))
                             .foregroundColor(.white)
                         Text(game.bundleId)
                             .font(.rajdhani(12, weight: .medium))
@@ -487,31 +567,14 @@ struct GameLaunchSheet: View {
                     
                     Spacer()
                     
-                    // Center: Realtime Circular Artwork
-                    ZStack {
-                        Circle()
-                            .fill(Color(hex: "222430"))
-                            .frame(width: 50, height: 50)
-                        
-                        Image(uiImage: iconManager.getImage(for: game.bundleId))
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 50, height: 50)
-                            .clipShape(Circle())
-                    }
-                    .overlay(Circle().stroke(Color.white.opacity(0.15), lineWidth: 1.5))
-                    .shadow(color: Color.black.opacity(0.5), radius: 6, y: 3)
-                    
-                    Spacer()
-                    
                     // Right: Mode Game Status in RED theme
                     VStack(alignment: .trailing, spacing: 3) {
                         Text("Mode Game")
-                            .font(.rajdhani(14, weight: .bold))
-                            .foregroundColor(.white)
-                        Text(selectedMode)
                             .font(.rajdhani(13, weight: .bold))
-                            .foregroundColor(Color(hex: "FF1E27")) // Red theme
+                            .foregroundColor(.white.opacity(0.85))
+                        Text(selectedMode)
+                            .font(.rajdhani(14, weight: .bold))
+                            .foregroundColor(Color(hex: "FF1E27")) // GodDataX Red theme
                     }
                 }
                 .padding(.horizontal, 16)
@@ -521,25 +584,45 @@ struct GameLaunchSheet: View {
             .cornerRadius(18)
             .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.white.opacity(0.08), lineWidth: 1))
             
-            // Mode Selection Grid (Competitive in RED theme vs Balance)
+            // Section Title matching Image 3: Pilih Mode Peluncuran
+            HStack {
+                Text(lang.text(id: "Pilih Mode Peluncuran", en: "Select Launch Mode"))
+                    .font(.rajdhani(15, weight: .bold))
+                    .foregroundColor(.white)
+                Spacer()
+            }
+            .padding(.horizontal, 4)
+            
+            // Mode Selection Grid (Competitive with Rocket & Checkmark vs Balance)
             HStack(spacing: 12) {
-                // Card 1: Competitive (Red Accent)
+                // Card 1: Competitive (Rocket icon + Checkmark in RED theme)
                 Button(action: {
                     let gen = UIImpactFeedbackGenerator(style: .medium)
                     gen.impactOccurred()
                     selectedMode = "Competitive"
                 }) {
-                    VStack(spacing: 10) {
-                        Image(systemName: "trophy.fill")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .foregroundColor(selectedMode == "Competitive" ? Color(hex: "FF1E27") : Color.gray)
+                    ZStack(alignment: .topTrailing) {
+                        VStack(spacing: 10) {
+                            GamingRocketIcon(
+                                color: selectedMode == "Competitive" ? Color(hex: "FF1E27") : Color.gray,
+                                size: 34
+                            )
+                            
+                            Text("Competitive")
+                                .font(.rajdhani(16, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 105)
                         
-                        Text("Competitive")
-                            .font(.rajdhani(16, weight: .bold))
-                            .foregroundColor(.white)
+                        // Checkmark Badge in top-right corner matching Image 3
+                        if selectedMode == "Competitive" {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 13, weight: .heavy))
+                                .foregroundColor(Color(hex: "FF1E27"))
+                                .padding(10)
+                        }
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 105)
                     .background(
                         selectedMode == "Competitive" ?
                             Color(hex: "250B0D").opacity(0.95) :
@@ -550,30 +633,39 @@ struct GameLaunchSheet: View {
                         RoundedRectangle(cornerRadius: 16)
                             .stroke(
                                 selectedMode == "Competitive" ?
-                                    Color(hex: "FF1E27").opacity(0.85) :
+                                    Color(hex: "FF1E27").opacity(0.9) :
                                     Color.white.opacity(0.06),
                                 lineWidth: 1.5
                             )
                     )
                 }
                 
-                // Card 2: Balance
+                // Card 2: Balance (Matching style)
                 Button(action: {
                     let gen = UIImpactFeedbackGenerator(style: .medium)
                     gen.impactOccurred()
                     selectedMode = "Balance"
                 }) {
-                    VStack(spacing: 10) {
-                        Image(systemName: "circle.lefthalf.filled")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .foregroundColor(selectedMode == "Balance" ? Color(hex: "FF1E27") : Color.gray)
+                    ZStack(alignment: .topTrailing) {
+                        VStack(spacing: 10) {
+                            Image(systemName: "circle.lefthalf.filled")
+                                .font(.system(size: 32, weight: .bold, design: .rounded))
+                                .foregroundColor(selectedMode == "Balance" ? Color(hex: "FF1E27") : Color.gray)
+                            
+                            Text("Balance")
+                                .font(.rajdhani(16, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 105)
                         
-                        Text("Balance")
-                            .font(.rajdhani(16, weight: .bold))
-                            .foregroundColor(.white)
+                        if selectedMode == "Balance" {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 13, weight: .heavy))
+                                .foregroundColor(Color(hex: "FF1E27"))
+                                .padding(10)
+                        }
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 105)
                     .background(
                         selectedMode == "Balance" ?
                             Color(hex: "250B0D").opacity(0.95) :
@@ -584,7 +676,7 @@ struct GameLaunchSheet: View {
                         RoundedRectangle(cornerRadius: 16)
                             .stroke(
                                 selectedMode == "Balance" ?
-                                    Color(hex: "FF1E27").opacity(0.85) :
+                                    Color(hex: "FF1E27").opacity(0.9) :
                                     Color.white.opacity(0.06),
                                 lineWidth: 1.5
                             )
@@ -592,7 +684,7 @@ struct GameLaunchSheet: View {
                 }
             }
             
-            // Bottom Launch Slider Action Button (Triple play arrows in RED theme)
+            // Bottom Launch Slider Action Button (Matching Image 3 with "Geser untuk Membuka" in track)
             GeometryReader { sliderGeo in
                 ZStack(alignment: .leading) {
                     // Background track
@@ -600,7 +692,16 @@ struct GameLaunchSheet: View {
                         .fill(Color(hex: "12141A"))
                         .overlay(Capsule().stroke(Color.white.opacity(0.08), lineWidth: 1))
                     
-                    // Slider Knob with Triple Arrows in RED
+                    // Track Label matching Image 3: "Geser untuk Membuka"
+                    HStack {
+                        Spacer()
+                        Text(lang.text(id: "Geser untuk Membuka", en: "Slide to Open"))
+                            .font(.rajdhani(15, weight: .bold))
+                            .foregroundColor(Color.white.opacity(0.38))
+                            .padding(.trailing, 24)
+                    }
+                    
+                    // Slider Knob with Triple Arrows in RED theme
                     HStack(spacing: 2) {
                         Image(systemName: "play.fill")
                             .font(.system(size: 13, weight: .heavy, design: .rounded))
