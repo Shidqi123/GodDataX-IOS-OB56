@@ -29,7 +29,7 @@ struct FeaturesView: View {
                     GlassCard(borderColor: Color(hex: "FF1E27").opacity(0.3), cornerRadius: 18) {
                         VStack(spacing: 12) {
                             CustomToggleRow(
-                                title: lang.text(id: "Pelicin Gesekan Layar Drag FF", en: "Smooth Drag Screen Calibrator"),
+                                title: "GDX Drag",
                                 subtitle: lang.text(id: "Kalibrasi inersia digitizer sentuh agar drag shot licin dan tidak kesat", en: "Calibrate digitizer inertia for smoother drag shots without friction"),
                                 isOn: $smoothDrag,
                                 onChange: { val in
