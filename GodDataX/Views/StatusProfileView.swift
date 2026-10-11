@@ -22,11 +22,11 @@ struct StatusProfileView: View {
                     }
                     
                     Text("ACTIVE LICENSE")
-                        .font(.system(size: 13, weight: .black, design: .monospaced))
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
                         .foregroundColor(.green)
                     
                     Text(authService.currentKey.isEmpty ? "VIP ACCESS" : authService.currentKey)
-                        .font(.system(size: 22, weight: .black, design: .monospaced))
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
                 }
                 .padding(.top, 16)

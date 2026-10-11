@@ -27,7 +27,7 @@ struct FeaturesView: View {
                         .foregroundColor(.white)
                     
                     Text("Configured for Free Fire OB56 Engine")
-                        .font(.system(size: 12, weight: .medium, design: .monospaced))
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundColor(Color(hex: "FF1E27"))
                 }
                 .padding(.top, 14)
@@ -39,7 +39,7 @@ struct FeaturesView: View {
                             .foregroundColor(.green)
                             .font(.system(size: 14))
                         Text("Security & Bypass")
-                            .font(.system(size: 15, weight: .bold))
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                     }
                     .padding(.horizontal, 4)
@@ -75,7 +75,7 @@ struct FeaturesView: View {
                             .foregroundColor(Color(hex: "FF1E27"))
                             .font(.system(size: 14))
                         Text("Aim & Combat Tuning")
-                            .font(.system(size: 15, weight: .bold))
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                     }
                     .padding(.horizontal, 4)
@@ -131,7 +131,7 @@ struct FeaturesView: View {
                             .foregroundColor(Color(hex: "FF1E27"))
                             .font(.system(size: 14))
                         Text("Device Boost (iOS)")
-                            .font(.system(size: 15, weight: .bold))
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                     }
                     .padding(.horizontal, 4)

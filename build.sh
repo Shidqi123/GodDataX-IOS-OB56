@@ -38,9 +38,10 @@ if [ -z "$APP_PATH" ]; then
 fi
 echo "Found app at: $APP_PATH"
 cp -r "$APP_PATH" Payload/
-zip -qr "GodDataX_OB56_v4.ipa" Payload
-cp "GodDataX_OB56_v4.ipa" "GodDataX_v4_OB56.ipa"
-cp "GodDataX_OB56_v4.ipa" "GodDataX_v3_OB56.ipa"
-cp "GodDataX_OB56_v4.ipa" "GodDataX_IOS_OB56.ipa"
+zip -qr "GodDataX_v2_OB56.ipa" Payload
+cp "GodDataX_v2_OB56.ipa" "GodDataX_OB56_v2.ipa"
+cp "GodDataX_v2_OB56.ipa" "GodDataX_v3_OB56.ipa"
+cp "GodDataX_v2_OB56.ipa" "GodDataX_v4_OB56.ipa"
+cp "GodDataX_v2_OB56.ipa" "GodDataX_IOS_OB56.ipa"
 ls -lh GodDataX*.ipa
-echo "=== Done! GodDataX_v4_OB56.ipa generated successfully ==="
+echo "=== Done! GodDataX_v2_OB56.ipa generated successfully ==="

@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @ObservedObject var authService = AuthService.shared
     @State private var selectedTab = 0
+    @State private var isModalActive: Bool = false
     
     var body: some View {
         ZStack {
@@ -16,7 +17,7 @@ struct ContentView: View {
                 ZStack(alignment: .bottom) {
                     // Tab Content
                     TabView(selection: $selectedTab) {
-                        MainDashboardView()
+                        MainDashboardView(isModalActive: $isModalActive)
                             .tag(0)
                         
                         StatusProfileView()
@@ -27,46 +28,50 @@ struct ContentView: View {
                     }
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                     
-                    // Floating Bottom Navbar - Compact Centered Capsule with Red Accent
-                    HStack(spacing: 8) {
-                        // Tab 0: Mulai Game
-                        NavBarButton(
-                            icon: "flame.fill",
-                            title: "Mulai Game",
-                            isSelected: selectedTab == 0
-                        ) {
-                            switchTab(0)
+                    // Floating Bottom Navbar - Hide when modal/notice sheet is active to prevent collision
+                    if !isModalActive {
+                        HStack(spacing: 8) {
+                            // Tab 0: Mulai Game (Restored to Nebula's gamecontroller icon)
+                            NavBarButton(
+                                icon: "gamecontroller.fill",
+                                title: "Mulai Game",
+                                isSelected: selectedTab == 0
+                            ) {
+                                switchTab(0)
+                            }
+                            
+                            // Tab 1: Profile
+                            NavBarButton(
+                                icon: "person.text.rectangle.fill",
+                                title: "Profil",
+                                isSelected: selectedTab == 1
+                            ) {
+                                switchTab(1)
+                            }
+                            
+                            // Tab 2: Settings / Features
+                            NavBarButton(
+                                icon: "slider.horizontal.3",
+                                title: "Fitur",
+                                isSelected: selectedTab == 2
+                            ) {
+                                switchTab(2)
+                            }
                         }
-                        
-                        // Tab 1: Profile
-                        NavBarButton(
-                            icon: "person.text.rectangle.fill",
-                            title: "Profil",
-                            isSelected: selectedTab == 1
-                        ) {
-                            switchTab(1)
-                        }
-                        
-                        // Tab 2: Settings / Features
-                        NavBarButton(
-                            icon: "slider.horizontal.3",
-                            title: "Fitur",
-                            isSelected: selectedTab == 2
-                        ) {
-                            switchTab(2)
-                        }
+                        .padding(6)
+                        .background(
+                            Capsule()
+                                .fill(Color(hex: "0E1015"))
+                                .overlay(
+                                    Capsule().stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                )
+                                .shadow(color: Color.black.opacity(0.75), radius: 20, y: 8)
+                        )
+                        .padding(.bottom, 20)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
-                    .padding(6)
-                    .background(
-                        Capsule()
-                            .fill(Color(hex: "0E1015"))
-                            .overlay(
-                                Capsule().stroke(Color.white.opacity(0.08), lineWidth: 1)
-                            )
-                            .shadow(color: Color.black.opacity(0.75), radius: 20, y: 8)
-                    )
-                    .padding(.bottom, 20)
                 }
+                .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isModalActive)
                 .transition(.opacity)
             }
         }
@@ -93,12 +98,12 @@ struct NavBarButton: View {
         Button(action: action) {
             HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .font(.system(size: 15, weight: .bold))
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
                 
                 if isSelected {
                     Text(title)
-                        .font(.system(size: 13, weight: .bold))
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
                 }
             }
@@ -119,4 +124,3 @@ struct NavBarButton: View {
         }
     }
 }
-

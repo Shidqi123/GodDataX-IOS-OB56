@@ -23,7 +23,7 @@ targets:
       path: GodDataX/Info.plist
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.goddatax.ios.ob56
+        PRODUCT_BUNDLE_IDENTIFIER: com.goddatax.ios.v2
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         INFOPLIST_FILE: GodDataX/Info.plist
