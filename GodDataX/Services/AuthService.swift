@@ -89,12 +89,60 @@ class AuthService: ObservableObject {
         return AuthService.getOB57CountdownString(dayLabel: dayLabel)
     }
     
+    static let ob57TargetDate: Date = {
+        var comps = DateComponents()
+        comps.year = 2026
+        comps.month = 11
+        comps.day = 27
+        comps.hour = 0
+        comps.minute = 0
+        comps.second = 0
+        return Calendar.current.date(from: comps) ?? Date(timeIntervalSince1970: 1795737600)
+    }()
+    
+    static func isOB57Reached() -> Bool {
+        return Date() >= ob57TargetDate
+    }
+    
+    private var sessionMonitorTimer: Timer?
+    
     init() {
         self.hwid = getOrGenerateHWID()
         self.deviceUserId = getOrGenerateDeviceUserId()
         self.expiryDateString = AuthService.getOB57CountdownString()
         checkStoredSession()
+        startSessionMonitoring()
         syncUserWithFirebase()
+    }
+    
+    private func startSessionMonitoring() {
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willEnterForegroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.checkOB57Status()
+            self?.syncUserWithFirebase()
+        }
+        
+        sessionMonitorTimer?.invalidate()
+        sessionMonitorTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { [weak self] _ in
+            self?.checkOB57Status()
+            if self?.isAuthenticated == true {
+                self?.syncUserWithFirebase()
+            }
+        }
+    }
+    
+    func checkOB57Status() {
+        if AuthService.isOB57Reached() {
+            DispatchQueue.main.async {
+                if self.isAuthenticated {
+                    self.logout()
+                    self.errorMessage = "Free Fire telah diperbarui ke OB57. Versi GodDataX OB56 telah kedaluwarsa otomatis."
+                }
+            }
+        }
     }
     
     func getOrGenerateHWID() -> String {
@@ -235,12 +283,45 @@ class AuthService: ObservableObject {
                 }
             }
             
+            // 3. Query /licenses/{currentKey}.json to verify 1 License 1 Device lock in real-time
+            if !self.currentKey.isEmpty, let licenseURL = URL(string: "\(cleanBaseURL)/licenses/\(self.currentKey).json") {
+                var licReq = URLRequest(url: licenseURL)
+                licReq.httpMethod = "GET"
+                licReq.timeoutInterval = 3.0
+                URLSession.shared.dataTask(with: licReq) { [weak self] data, res, err in
+                    guard let self = self, let data = data, err == nil,
+                          let licDict = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else { return }
+                    
+                    if let lockedHwid = licDict["locked_hwid"] as? String, !lockedHwid.isEmpty {
+                        if lockedHwid != self.hwid {
+                            DispatchQueue.main.async {
+                                self.logout()
+                                self.errorMessage = "Lisensi Anda telah dipakai pada perangkat lain (1 License = 1 Perangkat)!"
+                            }
+                            return
+                        }
+                    }
+                    if let status = licDict["status"] as? String, (status.lowercased() == "expired" || status.lowercased() == "banned") {
+                        DispatchQueue.main.async {
+                            self.logout()
+                            self.errorMessage = "Lisensi telah dinonaktifkan atau kedaluwarsa."
+                        }
+                    }
+                }.resume()
+            }
+            
             // Keep device active record up to date in Firebase
             self.recordUserInFirebase(key: self.currentKey)
         }.resume()
     }
     
     private func checkStoredSession() {
+        if AuthService.isOB57Reached() {
+            logout()
+            self.errorMessage = "Free Fire telah diperbarui ke OB57. Versi GodDataX OB56 telah kedaluwarsa otomatis."
+            return
+        }
+        
         if let savedKey = UserDefaults.standard.string(forKey: authKeyStorage), !savedKey.isEmpty {
             self.currentKey = savedKey
             self.isAuthenticated = true
@@ -248,6 +329,13 @@ class AuthService: ObservableObject {
     }
     
     func login(key: String, completion: @escaping (Bool, String) -> Void) {
+        if AuthService.isOB57Reached() {
+            let msg = "Free Fire telah diperbarui ke OB57. GodDataX OB56 telah kedaluwarsa otomatis."
+            self.errorMessage = msg
+            completion(false, msg)
+            return
+        }
+        
         let trimmedKey = key.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         guard !trimmedKey.isEmpty else {
             self.errorMessage = "Silakan masukkan lisensi"
@@ -258,24 +346,91 @@ class AuthService: ObservableObject {
         isVerifying = true
         errorMessage = nil
         
-        // 1. First, attempt Realtime Database verification via Firebase REST API
+        // 1. Attempt Realtime Database verification via Firebase REST API
         verifyWithFirebase(key: trimmedKey) { [weak self] isFirebaseValid, firebaseMsg in
             guard let self = self else { return }
             
             DispatchQueue.main.async {
                 if isFirebaseValid {
+                    self.lockLicenseToThisDevice(key: trimmedKey)
                     self.acceptLogin(key: trimmedKey, completion: completion)
+                } else if firebaseMsg.contains("1 License = 1 Perangkat") || firebaseMsg.contains("terkunci pada perangkat lain") {
+                    // STERN REJECTION: If already used by another device, REJECT!
+                    self.isVerifying = false
+                    self.errorMessage = firebaseMsg
+                    completion(false, firebaseMsg)
                 } else if self.validKeys.contains(trimmedKey) {
-                    // 2. Fallback to valid offline keys list
-                    self.acceptLogin(key: trimmedKey, completion: completion)
+                    // Pre-approved key: check if locked in Firebase or lock it now
+                    self.checkPreApprovedKeyLock(key: trimmedKey) { isLockedToOther in
+                        DispatchQueue.main.async {
+                            if isLockedToOther {
+                                self.isVerifying = false
+                                let msg = "Lisensi ini sudah terkunci pada perangkat lain (1 License = 1 Perangkat)!"
+                                self.errorMessage = msg
+                                completion(false, msg)
+                            } else {
+                                self.lockLicenseToThisDevice(key: trimmedKey)
+                                self.acceptLogin(key: trimmedKey, completion: completion)
+                            }
+                        }
+                    }
                 } else {
                     self.isVerifying = false
-                    let errMsg = "Lisensi tidak valid atau kadaluarsa"
+                    let errMsg = firebaseMsg.isEmpty ? "Lisensi tidak valid atau kadaluarsa" : firebaseMsg
                     self.errorMessage = errMsg
                     completion(false, errMsg)
                 }
             }
         }
+    }
+    
+    private func checkPreApprovedKeyLock(key: String, completion: @escaping (Bool) -> Void) {
+        let cleanBaseURL = firebaseDatabaseURL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        guard let url = URL(string: "\(cleanBaseURL)/licenses/\(key).json") else {
+            completion(false)
+            return
+        }
+        var req = URLRequest(url: url)
+        req.httpMethod = "GET"
+        req.timeoutInterval = 3.0
+        URLSession.shared.dataTask(with: req) { [weak self] data, res, err in
+            guard let self = self, let data = data, err == nil,
+                  let dict = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
+                  let lockedHwid = dict["locked_hwid"] as? String, !lockedHwid.isEmpty else {
+                completion(false)
+                return
+            }
+            if lockedHwid != self.hwid {
+                completion(true) // Locked to another device!
+            } else {
+                completion(false) // Locked to this device, permitted
+            }
+        }.resume()
+    }
+    
+    func lockLicenseToThisDevice(key: String) {
+        let cleanBaseURL = firebaseDatabaseURL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        guard !cleanBaseURL.isEmpty, let url = URL(string: "\(cleanBaseURL)/licenses/\(key).json") else { return }
+        
+        let formatter = ISO8601DateFormatter()
+        let now = formatter.string(from: Date())
+        
+        let payload: [String: Any] = [
+            "locked_hwid": self.hwid,
+            "locked_device_user": self.deviceUserId,
+            "activated_at": now,
+            "status": "active",
+            "device_model": UIDevice.current.model,
+            "version": "OB56"
+        ]
+        
+        guard let httpBody = try? JSONSerialization.data(withJSONObject: payload, options: []) else { return }
+        var req = URLRequest(url: url)
+        req.httpMethod = "PATCH"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.httpBody = httpBody
+        req.timeoutInterval = 4.0
+        URLSession.shared.dataTask(with: req) { _, _, _ in }.resume()
     }
     
     private func acceptLogin(key: String, completion: @escaping (Bool, String) -> Void) {
@@ -291,7 +446,7 @@ class AuthService: ObservableObject {
         completion(true, "Akses Lisensi Diterima")
     }
     
-    /// Queries Firebase Realtime Database REST API for license status
+    /// Queries Firebase Realtime Database REST API for license status and checks 1 License 1 Device lock
     private func verifyWithFirebase(key: String, completion: @escaping (Bool, String) -> Void) {
         let cleanBaseURL = firebaseDatabaseURL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         guard let url = URL(string: "\(cleanBaseURL)/licenses/\(key).json") else {
@@ -303,19 +458,51 @@ class AuthService: ObservableObject {
         request.httpMethod = "GET"
         request.timeoutInterval = 4.0
         
-        URLSession.shared.dataTask(with: request) { data, response, error in
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            guard let self = self else { return }
             guard let data = data, error == nil,
-                  let jsonString = String(data: data, encoding: .utf8),
-                  jsonString != "null" else {
-                completion(false, "Not found in Firebase")
+                  let httpRes = response as? HTTPURLResponse, httpRes.statusCode == 200,
+                  let jsonString = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  jsonString != "null", !jsonString.isEmpty else {
+                completion(false, "Lisensi tidak ditemukan di database")
                 return
             }
             
-            // If the key node exists and is not "null", or contains active status:
-            if jsonString.contains("\"active\":false") || jsonString.contains("\"status\":\"expired\"") {
-                completion(false, "License expired")
+            if let dict = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] {
+                // 1. Check status (banned/expired)
+                if let status = dict["status"] as? String, (status.lowercased() == "expired" || status.lowercased() == "banned") {
+                    completion(false, "Lisensi telah kedaluwarsa atau dinonaktifkan")
+                    return
+                }
+                if let active = dict["active"] as? Bool, !active {
+                    completion(false, "Lisensi tidak aktif")
+                    return
+                }
+                
+                // 2. Strict 1 License 1 Device Lock
+                if let lockedHwid = dict["locked_hwid"] as? String, !lockedHwid.isEmpty {
+                    if lockedHwid != self.hwid {
+                        completion(false, "Lisensi ini sudah terkunci pada perangkat lain (1 License = 1 Perangkat)!")
+                        return
+                    }
+                } else if let boundDevice = dict["device_id"] as? String, !boundDevice.isEmpty {
+                    if boundDevice != self.hwid && boundDevice != self.deviceUserId {
+                        completion(false, "Lisensi ini sudah terkunci pada perangkat lain (1 License = 1 Perangkat)!")
+                        return
+                    }
+                } else {
+                    // Lock license to this device immediately
+                    self.lockLicenseToThisDevice(key: key)
+                }
+                
+                completion(true, "Akses Lisensi Diterima")
             } else {
-                completion(true, "Valid from Firebase")
+                if jsonString.contains("\"active\":false") || jsonString.contains("\"status\":\"expired\"") {
+                    completion(false, "Lisensi telah kedaluwarsa")
+                } else {
+                    self.lockLicenseToThisDevice(key: key)
+                    completion(true, "Akses Lisensi Diterima")
+                }
             }
         }.resume()
     }
