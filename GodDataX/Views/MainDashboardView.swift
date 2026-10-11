@@ -4,99 +4,48 @@ struct MainDashboardView: View {
     @ObservedObject var iconManager = FreeFireIconManager.shared
     @State private var showingSpringBoardAlert = false
     @State private var springBoardMsg = ""
-    @State private var isSpinningRefresh = false
     
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 22) {
-                // Top Dynamic Island Pill
-                DynamicIslandBanner()
-                    .padding(.top, 10)
-                
-                // Welcome / Status Header
-                VStack(spacing: 6) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("GodDataX iOS")
-                                .font(.system(size: 28, weight: .black, design: .rounded))
-                                .foregroundColor(.white)
-                            
-                            HStack(spacing: 6) {
-                                Text("OB56 EDITION")
-                                    .font(.system(size: 11, weight: .bold, design: .monospaced))
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 3)
-                                    .background(Color(hex: "FF1E27").opacity(0.2))
-                                    .foregroundColor(Color(hex: "FF1E27"))
-                                    .cornerRadius(6)
-                                
-                                Text("ARM64 NATIVE")
-                                    .font(.system(size: 11, weight: .bold, design: .monospaced))
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 3)
-                                    .background(Color.green.opacity(0.15))
-                                    .foregroundColor(.green)
-                                    .cornerRadius(6)
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        // Live Icon Refresh Button
-                        Button(action: refreshLiveIcons) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color(hex: "181824"))
-                                    .frame(width: 42, height: 42)
-                                    .overlay(Circle().stroke(Color.white.opacity(0.1), lineWidth: 1))
-                                
-                                Image(systemName: "arrow.triangle.2.circlepath")
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(Color(hex: "FF1E27"))
-                                    .rotationEffect(.degrees(isSpinningRefresh ? 360 : 0))
-                            }
-                        }
-                    }
+            VStack(spacing: 24) {
+                // Header: Just clean "GodDataX iOS"
+                HStack {
+                    Text("GodDataX iOS")
+                        .font(.system(size: 30, weight: .black, design: .rounded))
+                        .foregroundColor(.white)
+                    
+                    Spacer()
                 }
                 .padding(.horizontal, 20)
+                .padding(.top, 16)
                 
-                // SECTION: LIVE FREE FIRE LAUNCHERS
+                // SECTION: Library
                 VStack(alignment: .leading, spacing: 14) {
-                    HStack {
-                        Text("INSTANT LAUNCH & INJECT")
-                            .font(.system(size: 12, weight: .heavy, design: .monospaced))
-                            .foregroundColor(Color.gray)
-                        Spacer()
-                        Text("REALTIME ICONS")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(Color(hex: "FF1E27"))
-                    }
-                    .padding(.horizontal, 20)
+                    Text("Library")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 20)
                     
-                    // Card 1: Free Fire Standard
-                    GameLaunchCard(
-                        title: "Free Fire (OB56)",
-                        bundleId: AppConfig.ffBundleId,
+                    // Card 1: Free Fire (Clean minimal row like screenshot 2)
+                    GameCompactRow(
+                        title: "Free Fire",
                         scheme: AppConfig.ffScheme,
                         iconURL: iconManager.ffIconURL,
-                        fallbackImageName: "FFLogo",
-                        badgeText: "GLOBAL / ID"
+                        fallbackImageName: "FFLogo"
                     )
                     .padding(.horizontal, 20)
                     
-                    // Card 2: Free Fire MAX
-                    GameLaunchCard(
-                        title: "Free Fire MAX (OB56)",
-                        bundleId: AppConfig.ffMaxBundleId,
+                    // Card 2: Free Fire MAX (Clean minimal row)
+                    GameCompactRow(
+                        title: "Free Fire MAX",
                         scheme: AppConfig.ffMaxScheme,
                         iconURL: iconManager.ffMaxIconURL,
-                        fallbackImageName: "FFMaxLogo",
-                        badgeText: "ULTRA HD"
+                        fallbackImageName: "FFMaxLogo"
                     )
                     .padding(.horizontal, 20)
                 }
                 
-                // SECTION: QUICK SYSTEM UTILITIES
+                // SECTION: System Utilities
                 VStack(alignment: .leading, spacing: 14) {
                     Text("SYSTEM UTILITIES")
                         .font(.system(size: 12, weight: .heavy, design: .monospaced))
@@ -132,9 +81,9 @@ struct MainDashboardView: View {
                                     .foregroundColor(.gray)
                             }
                             .padding()
-                            .background(Color(hex: "13131A"))
+                            .background(Color(hex: "131419"))
                             .cornerRadius(16)
-                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.08), lineWidth: 1))
+                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.06), lineWidth: 1))
                         }
                         
                         // Utility Card: Clear Memory Cache
@@ -165,43 +114,30 @@ struct MainDashboardView: View {
                                     .foregroundColor(.gray)
                             }
                             .padding()
-                            .background(Color(hex: "13131A"))
+                            .background(Color(hex: "131419"))
                             .cornerRadius(16)
-                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.08), lineWidth: 1))
+                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.06), lineWidth: 1))
                         }
                     }
                     .padding(.horizontal, 20)
                 }
                 
-                Spacer(minLength: 80)
+                Spacer(minLength: 90)
             }
         }
         .alert(isPresented: $showingSpringBoardAlert) {
             Alert(
-                title: Text("System Notice"),
+                title: Text("Notice"),
                 message: Text(springBoardMsg),
                 dismissButton: .default(Text("OK"))
             )
         }
     }
     
-    private func refreshLiveIcons() {
-        withAnimation(.linear(duration: 0.8)) {
-            isSpinningRefresh = true
-        }
-        iconManager.fetchLatestIcons()
-        let gen = UIImpactFeedbackGenerator(style: .medium)
-        gen.impactOccurred()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            isSpinningRefresh = false
-        }
-    }
-    
     private func restartSpringBoard() {
         let gen = UINotificationFeedbackGenerator()
         gen.notificationOccurred(.success)
-        springBoardMsg = "SpringBoard UI Cache has been successfully reloaded for OB56."
+        springBoardMsg = "SpringBoard UI Cache has been successfully reloaded."
         showingSpringBoardAlert = true
     }
     
@@ -213,23 +149,21 @@ struct MainDashboardView: View {
     }
 }
 
-// Subcomponent: GameLaunchCard with Realtime App Store Artwork
-struct GameLaunchCard: View {
+// Subcomponent: Clean Compact Game Row matching user's reference screenshot
+struct GameCompactRow: View {
     let title: String
-    let bundleId: String
     let scheme: String
     let iconURL: URL?
     let fallbackImageName: String
-    let badgeText: String
     
     var body: some View {
-        GlassCard(borderColor: Color(hex: "FF1E27").opacity(0.3), cornerRadius: 18) {
-            HStack(spacing: 16) {
-                // Real-time Icon with Fallback
+        Button(action: launchGame) {
+            HStack(spacing: 14) {
+                // Circular App Artwork
                 ZStack {
-                    RoundedRectangle(cornerRadius: 14)
-                        .fill(Color(hex: "1E1E28"))
-                        .frame(width: 58, height: 58)
+                    Circle()
+                        .fill(Color(hex: "1C1D24"))
+                        .frame(width: 44, height: 44)
                     
                     if let url = iconURL {
                         AsyncImage(url: url) { phase in
@@ -238,68 +172,46 @@ struct GameLaunchCard: View {
                                 image
                                     .resizable()
                                     .scaledToFill()
-                                    .frame(width: 58, height: 58)
-                                    .cornerRadius(14)
+                                    .frame(width: 44, height: 44)
+                                    .clipShape(Circle())
                             default:
                                 Image(fallbackImageName)
                                     .resizable()
                                     .scaledToFill()
-                                    .frame(width: 58, height: 58)
-                                    .cornerRadius(14)
+                                    .frame(width: 44, height: 44)
+                                    .clipShape(Circle())
                             }
                         }
                     } else {
                         Image(fallbackImageName)
                             .resizable()
                             .scaledToFill()
-                            .frame(width: 58, height: 58)
-                            .cornerRadius(14)
+                            .frame(width: 44, height: 44)
+                            .clipShape(Circle())
                     }
                 }
-                .shadow(color: Color.black.opacity(0.4), radius: 6, y: 3)
+                .shadow(color: Color.black.opacity(0.3), radius: 4, y: 2)
                 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.white)
-                    
-                    Text(badgeText)
-                        .font(.system(size: 10, weight: .heavy, design: .monospaced))
-                        .foregroundColor(Color(hex: "FF1E27"))
-                    
-                    Text("Auto OB56 Injection")
-                        .font(.system(size: 11))
-                        .foregroundColor(.gray)
-                }
+                // Clean Title
+                Text(title)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(.white)
                 
                 Spacer()
-                
-                Button(action: launchGame) {
-                    HStack(spacing: 5) {
-                        Text("LAUNCH")
-                            .font(.system(size: 12, weight: .black))
-                        Image(systemName: "play.fill")
-                            .font(.system(size: 10))
-                    }
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background(
-                        LinearGradient(
-                            colors: [Color(hex: "FF1E27"), Color(hex: "990000")],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .cornerRadius(10)
-                    .shadow(color: Color(hex: "FF1E27").opacity(0.35), radius: 6, y: 2)
-                }
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .background(Color(hex: "131419"))
+            .cornerRadius(16)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.white.opacity(0.06), lineWidth: 1)
+            )
         }
     }
     
     private func launchGame() {
-        let generator = UIImpactFeedbackGenerator(style: .heavy)
+        let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
         
         if let url = URL(string: scheme) {

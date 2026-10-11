@@ -19,47 +19,59 @@ struct ContentView: View {
                         MainDashboardView()
                             .tag(0)
                         
-                        FeaturesView()
+                        StatusProfileView()
                             .tag(1)
                         
-                        StatusProfileView()
+                        FeaturesView()
                             .tag(2)
                     }
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                     
-                    // Floating Bottom Navbar
-                    HStack(spacing: 0) {
-                        NavBarItem(icon: "gamecontroller.fill", title: "Home", isSelected: selectedTab == 0) {
+                    // Floating Bottom Navbar matching screenshot reference
+                    HStack(spacing: 8) {
+                        // Tab 0: Mulai Game
+                        NavBarButton(
+                            icon: "gamecontroller.fill",
+                            title: "Mulai Game",
+                            isSelected: selectedTab == 0
+                        ) {
                             switchTab(0)
                         }
                         
-                        NavBarItem(icon: "slider.horizontal.3", title: "Features", isSelected: selectedTab == 1) {
+                        Spacer()
+                        
+                        // Tab 1: Profile
+                        NavBarButton(
+                            icon: "person.crop.circle.fill",
+                            title: "Profil",
+                            isSelected: selectedTab == 1
+                        ) {
                             switchTab(1)
                         }
                         
-                        NavBarItem(icon: "person.crop.circle.fill", title: "Status", isSelected: selectedTab == 2) {
+                        Spacer()
+                        
+                        // Tab 2: Settings / Features
+                        NavBarButton(
+                            icon: "gearshape.fill",
+                            title: "Fitur",
+                            isSelected: selectedTab == 2
+                        ) {
                             switchTab(2)
                         }
                     }
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
                     .background(
                         Capsule()
-                            .fill(Color(hex: "12121A").opacity(0.95))
+                            .fill(Color(hex: "0F1014"))
                             .overlay(
-                                Capsule().stroke(
-                                    LinearGradient(
-                                        colors: [Color(hex: "FF1E27").opacity(0.6), Color(hex: "880000").opacity(0.2)],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    ),
-                                    lineWidth: 1
-                                )
+                                Capsule().stroke(Color.white.opacity(0.06), lineWidth: 1)
                             )
-                            .shadow(color: Color.black.opacity(0.7), radius: 15, y: 8)
+                            .shadow(color: Color.black.opacity(0.8), radius: 18, y: 8)
                     )
-                    .padding(.horizontal, 28)
-                    .padding(.bottom, 12)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 14)
                 }
                 .transition(.opacity)
             }
@@ -70,13 +82,14 @@ struct ContentView: View {
     private func switchTab(_ index: Int) {
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
             selectedTab = index
         }
     }
 }
 
-struct NavBarItem: View {
+// Subcomponent: Custom Navbar Button matching the green active capsule design
+struct NavBarButton: View {
     let icon: String
     let title: String
     let isSelected: Bool
@@ -84,24 +97,30 @@ struct NavBarItem: View {
     
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
+            HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .font(.system(size: 15, weight: isSelected ? .bold : .medium))
-                    .foregroundColor(isSelected ? .white : .gray)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(.white)
                 
                 if isSelected {
                     Text(title)
-                        .font(.system(size: 12, weight: .bold))
+                        .font(.system(size: 13, weight: .bold))
                         .foregroundColor(.white)
                 }
             }
-            .padding(.vertical, 8)
-            .padding(.horizontal, isSelected ? 16 : 14)
+            .padding(.vertical, 10)
+            .padding(.horizontal, isSelected ? 18 : 14)
             .background(
-                Capsule()
-                    .fill(isSelected ? Color(hex: "FF1E27") : Color.clear)
+                Group {
+                    if isSelected {
+                        Capsule()
+                            .fill(Color(hex: "185838")) // Emerald forest green from screenshot
+                            .shadow(color: Color(hex: "185838").opacity(0.35), radius: 6, y: 2)
+                    } else {
+                        Color.clear
+                    }
+                }
             )
         }
-        .frame(maxWidth: .infinity)
     }
 }
