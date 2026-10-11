@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var authService = AuthService.shared
+    @ObservedObject var lang = LanguageManager.shared
     @State private var selectedTab = 0
     @State private var isModalActive: Bool = false
     
@@ -43,7 +44,7 @@ struct ContentView: View {
                             // Tab 1: Profile
                             NavBarButton(
                                 icon: "person.text.rectangle.fill",
-                                title: "Profil",
+                                title: lang.text(id: "Profil", en: "Profile"),
                                 isSelected: selectedTab == 1
                             ) {
                                 switchTab(1)
@@ -52,7 +53,7 @@ struct ContentView: View {
                             // Tab 2: Settings / Features
                             NavBarButton(
                                 icon: "slider.horizontal.3",
-                                title: "Fitur",
+                                title: lang.text(id: "Fitur", en: "Features"),
                                 isSelected: selectedTab == 2
                             ) {
                                 switchTab(2)

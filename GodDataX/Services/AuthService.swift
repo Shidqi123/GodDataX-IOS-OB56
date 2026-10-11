@@ -7,8 +7,11 @@ class AuthService: ObservableObject {
     @Published var isAuthenticated: Bool = false
     @Published var currentKey: String = ""
     @Published var hwid: String = ""
+    @Published var deviceUserId: String = ""
+    @Published var expiryDateString: String = "OB57 (27 Nov 2026)"
     @Published var errorMessage: String?
     @Published var isVerifying: Bool = false
+    public let sessionStartTime = Date()
     
     // Default Firebase Realtime Database URL (can be customized)
     @AppStorage("firebase_db_url") var firebaseDatabaseURL: String = "https://goddatax-ios-default-rtdb.firebaseio.com"
@@ -33,10 +36,29 @@ class AuthService: ObservableObject {
     
     private let authKeyStorage = "goddatax_saved_license"
     private let hwidStorage = "goddatax_device_hwid"
+    private let deviceUserStorage = "goddatax_device_user_id"
+    
+    static func calculateDefaultOB57Countdown() -> String {
+        let calendar = Calendar.current
+        var comps = DateComponents()
+        comps.year = 2026
+        comps.month = 11
+        comps.day = 27
+        if let target = calendar.date(from: comps) {
+            let days = calendar.dateComponents([.day], from: Date(), to: target).day ?? 47
+            if days > 0 {
+                return "OB57 (\(days) Hari / 27 Nov 2026)"
+            }
+        }
+        return "27 Nov 2026"
+    }
     
     init() {
         self.hwid = getOrGenerateHWID()
+        self.deviceUserId = getOrGenerateDeviceUserId()
+        self.expiryDateString = AuthService.calculateDefaultOB57Countdown()
         checkStoredSession()
+        fetchFirebaseExpiry()
     }
     
     func getOrGenerateHWID() -> String {
@@ -51,6 +73,52 @@ class AuthService: ObservableObject {
         
         UserDefaults.standard.set(newHWID, forKey: hwidStorage)
         return newHWID
+    }
+    
+    func getOrGenerateDeviceUserId() -> String {
+        if let stored = UserDefaults.standard.string(forKey: deviceUserStorage), !stored.isEmpty {
+            return stored
+        }
+        
+        // Generate random user ID unique to this iPhone (e.g. user-00b9987d2)
+        let clean = self.hwid.replacingOccurrences(of: "-", with: "").replacingOccurrences(of: "GDXIOS", with: "").lowercased()
+        let randomChars = "0123456789abcdef"
+        var randomHex = ""
+        for _ in 0..<4 {
+            if let c = randomChars.randomElement() { randomHex.append(c) }
+        }
+        let suffix = clean.count >= 5 ? String(clean.prefix(5)) + randomHex.prefix(4) : "00b9987d2"
+        let generated = "user-\(suffix)"
+        UserDefaults.standard.set(generated, forKey: deviceUserStorage)
+        return generated
+    }
+    
+    func fetchFirebaseExpiry() {
+        let cleanBaseURL = firebaseDatabaseURL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        let targetKey = self.currentKey.isEmpty ? self.hwid : self.currentKey
+        
+        let pathsToTry = [
+            "\(cleanBaseURL)/users/\(self.deviceUserId)/expiry.json",
+            "\(cleanBaseURL)/users/\(self.hwid)/expiry.json",
+            "\(cleanBaseURL)/licenses/\(targetKey)/expiry.json"
+        ]
+        
+        for path in pathsToTry {
+            guard let url = URL(string: path) else { continue }
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.timeoutInterval = 3.0
+            
+            URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
+                guard let self = self, let data = data, error == nil,
+                      let expiryText = String(data: data, encoding: .utf8)?.replacingOccurrences(of: "\"", with: "").trimmingCharacters(in: .whitespacesAndNewlines),
+                      expiryText != "null", !expiryText.isEmpty else { return }
+                
+                DispatchQueue.main.async {
+                    self.expiryDateString = expiryText
+                }
+            }.resume()
+        }
     }
     
     private func checkStoredSession() {
@@ -99,6 +167,7 @@ class AuthService: ObservableObject {
         
         // Register / record user session in Firebase Database asynchronously
         self.recordUserInFirebase(key: key)
+        self.fetchFirebaseExpiry()
         
         completion(true, "Akses Lisensi Diterima")
     }
@@ -142,6 +211,7 @@ class AuthService: ObservableObject {
         
         let payload: [String: Any] = [
             "hwid": self.hwid,
+            "device_user_id": self.deviceUserId,
             "license_key": key,
             "last_login": now,
             "platform": "iOS",
@@ -161,6 +231,15 @@ class AuthService: ObservableObject {
         URLSession.shared.dataTask(with: request) { _, _, _ in
             // Registered in Firebase successfully
         }.resume()
+        
+        if let userUrl = URL(string: "\(cleanBaseURL)/users/\(self.deviceUserId).json") {
+            var userReq = URLRequest(url: userUrl)
+            userReq.httpMethod = "PATCH"
+            userReq.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            userReq.httpBody = httpBody
+            userReq.timeoutInterval = 5.0
+            URLSession.shared.dataTask(with: userReq) { _, _, _ in }.resume()
+        }
     }
     
     func logout() {

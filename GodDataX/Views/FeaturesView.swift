@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct FeaturesView: View {
+    @ObservedObject var lang = LanguageManager.shared
+    
     // Combat Features State
     @State private var aimAssist = true
     @State private var headshotAssist = true
@@ -22,11 +24,11 @@ struct FeaturesView: View {
             VStack(spacing: 24) {
                 // Header
                 VStack(spacing: 4) {
-                    Text("OB56 FEATURES")
+                    Text(lang.text(id: "FITUR OB56", en: "OB56 FEATURES"))
                         .font(.rajdhani(26, weight: .bold))
                         .foregroundColor(.white)
                     
-                    Text("Configured for Free Fire OB56 Engine")
+                    Text(lang.text(id: "Dikonfigurasi untuk Engine Free Fire OB56", en: "Configured for Free Fire OB56 Engine"))
                         .font(.rajdhani(13, weight: .medium))
                         .foregroundColor(Color(hex: "FF1E27"))
                 }
@@ -38,7 +40,7 @@ struct FeaturesView: View {
                         Image(systemName: "shield.lefthalf.filled")
                             .foregroundColor(.green)
                             .font(.system(size: 14))
-                        Text("Security & Bypass")
+                        Text(lang.text(id: "Keamanan & Bypass", en: "Security & Bypass"))
                             .font(.rajdhani(16, weight: .bold))
                             .foregroundColor(.white)
                     }
@@ -74,7 +76,7 @@ struct FeaturesView: View {
                         Image(systemName: "scope")
                             .foregroundColor(Color(hex: "FF1E27"))
                             .font(.system(size: 14))
-                        Text("Aim & Combat Tuning")
+                        Text(lang.text(id: "Tuning Aim & Tempur", en: "Aim & Combat Tuning"))
                             .font(.rajdhani(16, weight: .bold))
                             .foregroundColor(.white)
                     }
@@ -83,8 +85,8 @@ struct FeaturesView: View {
                     GlassCard(borderColor: Color(hex: "FF1E27").opacity(0.3), cornerRadius: 18) {
                         VStack(spacing: 12) {
                             CustomToggleRow(
-                                title: "Aim Assist OB56",
-                                subtitle: "Magnetic crosshair targeting",
+                                title: lang.text(id: "Bantuan Bidik OB56", en: "Aim Assist OB56"),
+                                subtitle: lang.text(id: "Target crosshair magnetik", en: "Magnetic crosshair targeting"),
                                 icon: "target",
                                 iconColor: Color(hex: "FF1E27"),
                                 isOn: $aimAssist
@@ -93,8 +95,8 @@ struct FeaturesView: View {
                             Divider().background(Color.white.opacity(0.1))
                             
                             CustomToggleRow(
-                                title: "Headshot Calibration",
-                                subtitle: "Auto adjust vertical drag recoil",
+                                title: lang.text(id: "Kalibrasi Headshot", en: "Headshot Calibration"),
+                                subtitle: lang.text(id: "Stabilisasi recoil drag vertikal", en: "Auto adjust vertical drag recoil"),
                                 icon: "cross.circle.fill",
                                 iconColor: Color(hex: "FF3B47"),
                                 isOn: $headshotAssist
@@ -103,8 +105,8 @@ struct FeaturesView: View {
                             Divider().background(Color.white.opacity(0.1))
                             
                             CustomToggleRow(
-                                title: "Zero Recoil Stabilizer",
-                                subtitle: "Smooth weapon spray patterns",
+                                title: lang.text(id: "Stabilizer Tanpa Recoil", en: "Zero Recoil Stabilizer"),
+                                subtitle: lang.text(id: "Pola spray senjata lebih halus", en: "Smooth weapon spray patterns"),
                                 icon: "waveform.path.ecg",
                                 iconColor: Color(hex: "FF5E68"),
                                 isOn: $recoilControl
@@ -113,8 +115,8 @@ struct FeaturesView: View {
                             Divider().background(Color.white.opacity(0.1))
                             
                             CustomToggleRow(
-                                title: "Scope Stability",
-                                subtitle: "Removes sniper weapon sway",
+                                title: lang.text(id: "Stabilitas Scope", en: "Scope Stability"),
+                                subtitle: lang.text(id: "Hilangkan goyangan senjata sniper", en: "Removes sniper weapon sway"),
                                 icon: "viewfinder",
                                 iconColor: .purple,
                                 isOn: $sniperScope
@@ -130,7 +132,7 @@ struct FeaturesView: View {
                         Image(systemName: "bolt.fill")
                             .foregroundColor(Color(hex: "FF1E27"))
                             .font(.system(size: 14))
-                        Text("Device Boost (iOS)")
+                        Text(lang.text(id: "Peningkatan Perangkat (iOS)", en: "Device Boost (iOS)"))
                             .font(.rajdhani(16, weight: .bold))
                             .foregroundColor(.white)
                     }

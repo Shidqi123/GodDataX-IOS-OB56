@@ -24,6 +24,7 @@ struct DashboardNotice: Identifiable {
 struct MainDashboardView: View {
     @Binding var isModalActive: Bool
     @ObservedObject var iconManager = FreeFireIconManager.shared
+    @ObservedObject var lang = LanguageManager.shared
     
     @State private var installedGames: [InstalledGame] = []
     @State private var selectedGame: GameLaunchInfo? = nil
@@ -51,7 +52,7 @@ struct MainDashboardView: View {
                     // SECTION: Library (Dynamically detects installed games)
                     VStack(alignment: .leading, spacing: 14) {
                         HStack {
-                            Text("Library")
+                            Text(lang.text(id: "Library", en: "Library"))
                                 .font(.rajdhani(18, weight: .bold))
                                 .foregroundColor(.white)
                             
@@ -90,7 +91,7 @@ struct MainDashboardView: View {
                     
                     // SECTION: System Utilities
                     VStack(alignment: .leading, spacing: 14) {
-                        Text("SYSTEM UTILITIES")
+                        Text(lang.text(id: "UTILITAS SISTEM", en: "SYSTEM UTILITIES"))
                             .font(.rajdhani(16, weight: .bold))
                             .foregroundColor(.white)
                             .padding(.horizontal, 20)
@@ -109,10 +110,10 @@ struct MainDashboardView: View {
                                     }
                                     
                                     VStack(alignment: .leading, spacing: 2) {
-                                        Text("Reload SpringBoard")
+                                        Text(lang.text(id: "Muat Ulang SpringBoard", en: "Reload SpringBoard"))
                                             .font(.rajdhani(17, weight: .bold))
                                             .foregroundColor(.white)
-                                        Text("Flush cache & reload interface")
+                                        Text(lang.text(id: "Bersihkan cache & muat ulang UI", en: "Flush cache & reload interface"))
                                             .font(.rajdhani(13, weight: .medium))
                                             .foregroundColor(.gray)
                                     }
@@ -142,10 +143,10 @@ struct MainDashboardView: View {
                                     }
                                     
                                     VStack(alignment: .leading, spacing: 2) {
-                                        Text("Free Up RAM Cache")
+                                        Text(lang.text(id: "Bersihkan Cache RAM", en: "Free Up RAM Cache"))
                                             .font(.rajdhani(17, weight: .bold))
                                             .foregroundColor(.white)
-                                        Text("Optimize RAM for 120 FPS gaming")
+                                        Text(lang.text(id: "Optimalkan RAM untuk gaming 120 FPS", en: "Optimize RAM for 120 FPS gaming"))
                                             .font(.rajdhani(13, weight: .medium))
                                             .foregroundColor(.gray)
                                     }
@@ -327,8 +328,8 @@ struct MainDashboardView: View {
         
         withAnimation(.spring(response: 0.38, dampingFraction: 0.8)) {
             activeNotice = DashboardNotice(
-                title: "SpringBoard Reloaded",
-                message: "SpringBoard UI Cache and layout services have been actively refreshed."
+                title: lang.text(id: "SpringBoard Dimuat Ulang", en: "SpringBoard Reloaded"),
+                message: lang.text(id: "Cache UI SpringBoard berhasil dimuat ulang secara aktif.", en: "SpringBoard UI Cache and layout services actively refreshed.")
             )
             isModalActive = true
         }
@@ -360,8 +361,11 @@ struct MainDashboardView: View {
         
         withAnimation(.spring(response: 0.38, dampingFraction: 0.8)) {
             activeNotice = DashboardNotice(
-                title: "Memory Optimized",
-                message: String(format: "RAM optimized! %.1f MB inactive cache cleared. Memory buffers flushed for 120 FPS high performance gaming.", freedMB)
+                title: lang.text(id: "Memori Dioptimalkan", en: "Memory Optimized"),
+                message: lang.text(
+                    id: String(format: "RAM dioptimalkan! %.1f MB cache dibersihkan untuk gaming 120 FPS.", freedMB),
+                    en: String(format: "RAM optimized! %.1f MB inactive cache cleared for 120 FPS gaming.", freedMB)
+                )
             )
             isModalActive = true
         }
