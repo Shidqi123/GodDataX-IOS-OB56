@@ -1,1 +1,67 @@
+name: Build GodDataX iOS Pure IPA (OB56)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-ipa:
+    name: Build & Export Pure IPA
+    runs-on: macos-14
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup XcodeGen
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: 🛠️ Build GodDataX App (Release iphoneos)
+        run: |
+          xcodebuild clean build \
+            -project GodDataX.xcodeproj \
+            -scheme GodDataX \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
+
+      - name: 📦 Package into Pure .IPA
+        run: |
+          mkdir -p Payload
+          cp -r build/Build/Products/Release-iphoneos/GodDataX.app Payload/
+          zip -qr GodDataX_OB56.ipa Payload
+          ls -lh GodDataX_OB56.ipa
+
+      - name: 🚀 Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GodDataX_OB56_iOS_IPA
+          path: GodDataX_OB56.ipa
+          retention-days: 14
+
+      - name: 🏷️ Publish GitHub Release (Automated)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v2.0-ob56
+          name: "GodDataX iOS v2.0 - OB56 Pure IPA"
+          body: |
+            ### 🚀 GodDataX iOS (OB56 Version)
+            - Platform: Pure Native iOS (Swift & SwiftUI)
+            - Target: Free Fire OB56 & Free Fire MAX OB56
+            - Realtime App Store Live Artwork
+            - Pure Standalone .IPA (No Domain)
+          files: GodDataX_OB56.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
 
