@@ -58,7 +58,7 @@ struct CustomToggleRow: View {
             
             Toggle("", isOn: $isOn)
                 .labelsHidden()
-                .tint(Color.orange)
+                .tint(Color(hex: "FF1E27"))
                 .onChange(of: isOn) { _ in
                     let generator = UIImpactFeedbackGenerator(style: .medium)
                     generator.impactOccurred()

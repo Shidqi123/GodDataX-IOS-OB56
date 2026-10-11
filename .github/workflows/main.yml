@@ -4,6 +4,9 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: macos-14
@@ -19,6 +22,15 @@ jobs:
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: GodDataX_OB56_IPA
-          path: GodDataX_OB56.ipa
+          name: GodDataX_IOS_OB56
+          path: GodDataX_IOS_OB56.ipa
           if-no-files-found: error
+
+      - name: Publish Direct IPA Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/main'
+        with:
+          tag_name: latest
+          name: GodDataX IOS OB56 Latest
+          files: GodDataX_IOS_OB56.ipa
+        continue-on-error: true

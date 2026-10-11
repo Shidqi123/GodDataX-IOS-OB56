@@ -14,7 +14,7 @@ struct DynamicIslandBanner: View {
             
             Image(systemName: "shield.fill")
                 .font(.system(size: 11, weight: .bold))
-                .foregroundColor(.orange)
+                .foregroundColor(Color(hex: "FF1E27"))
             
             Text("GODDATAX SECURED • OB56")
                 .font(.system(size: 11, weight: .black, design: .monospaced))
@@ -30,7 +30,7 @@ struct DynamicIslandBanner: View {
                     Capsule()
                         .stroke(
                             LinearGradient(
-                                colors: [Color.orange.opacity(0.6), Color.red.opacity(0.3)],
+                                colors: [Color(hex: "FF1E27").opacity(0.8), Color(hex: "880000").opacity(0.4)],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             ),

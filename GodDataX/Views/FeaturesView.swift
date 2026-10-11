@@ -28,7 +28,7 @@ struct FeaturesView: View {
                     
                     Text("Configured for Free Fire OB56 Engine")
                         .font(.system(size: 12, weight: .medium, design: .monospaced))
-                        .foregroundColor(.orange)
+                        .foregroundColor(Color(hex: "FF1E27"))
                 }
                 .padding(.top, 14)
                 
@@ -58,9 +58,9 @@ struct FeaturesView: View {
                             
                             CustomToggleRow(
                                 title: "Log Anonymizer",
-                                subtitle: "Mask client telemetry & UID",
+                                subtitle: "Disable crash telemetry reporting",
                                 icon: "eye.slash.fill",
-                                iconColor: .mint,
+                                iconColor: .teal,
                                 isOn: $logAnonymizer
                             )
                         }
@@ -72,7 +72,7 @@ struct FeaturesView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack(spacing: 6) {
                         Image(systemName: "scope")
-                            .foregroundColor(.red)
+                            .foregroundColor(Color(hex: "FF1E27"))
                             .font(.system(size: 13))
                         Text("AIM & COMBAT TUNING")
                             .font(.system(size: 11, weight: .black, design: .monospaced))
@@ -80,13 +80,13 @@ struct FeaturesView: View {
                     }
                     .padding(.horizontal, 4)
                     
-                    GlassCard(borderColor: Color.red.opacity(0.3), cornerRadius: 18) {
+                    GlassCard(borderColor: Color(hex: "FF1E27").opacity(0.3), cornerRadius: 18) {
                         VStack(spacing: 12) {
                             CustomToggleRow(
                                 title: "Aim Assist OB56",
                                 subtitle: "Magnetic crosshair targeting",
                                 icon: "target",
-                                iconColor: .red,
+                                iconColor: Color(hex: "FF1E27"),
                                 isOn: $aimAssist
                             )
                             
@@ -96,7 +96,7 @@ struct FeaturesView: View {
                                 title: "Headshot Calibration",
                                 subtitle: "Auto adjust vertical drag recoil",
                                 icon: "cross.circle.fill",
-                                iconColor: .orange,
+                                iconColor: Color(hex: "FF3B47"),
                                 isOn: $headshotAssist
                             )
                             
@@ -106,7 +106,7 @@ struct FeaturesView: View {
                                 title: "Zero Recoil Stabilizer",
                                 subtitle: "Smooth weapon spray patterns",
                                 icon: "waveform.path.ecg",
-                                iconColor: .yellow,
+                                iconColor: Color(hex: "FF5E68"),
                                 isOn: $recoilControl
                             )
                             
@@ -128,7 +128,7 @@ struct FeaturesView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack(spacing: 6) {
                         Image(systemName: "bolt.fill")
-                            .foregroundColor(.orange)
+                            .foregroundColor(Color(hex: "FF1E27"))
                             .font(.system(size: 13))
                         Text("DEVICE BOOST (IOS)")
                             .font(.system(size: 11, weight: .black, design: .monospaced))
@@ -136,13 +136,13 @@ struct FeaturesView: View {
                     }
                     .padding(.horizontal, 4)
                     
-                    GlassCard(borderColor: Color.orange.opacity(0.3), cornerRadius: 18) {
+                    GlassCard(borderColor: Color(hex: "FF1E27").opacity(0.3), cornerRadius: 18) {
                         VStack(spacing: 12) {
                             CustomToggleRow(
                                 title: "120 FPS ProMotion Unlock",
                                 subtitle: "Force 120Hz display refresh rate",
                                 icon: "speedometer",
-                                iconColor: .orange,
+                                iconColor: Color(hex: "FF1E27"),
                                 isOn: $highFPS
                             )
                             

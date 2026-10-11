@@ -17,7 +17,7 @@ struct MainDashboardView: View {
                 VStack(spacing: 6) {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("GODDATAX")
+                            Text("GodDataX iOS")
                                 .font(.system(size: 28, weight: .black, design: .rounded))
                                 .foregroundColor(.white)
                             
@@ -26,8 +26,8 @@ struct MainDashboardView: View {
                                     .font(.system(size: 11, weight: .bold, design: .monospaced))
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
-                                    .background(Color.orange.opacity(0.2))
-                                    .foregroundColor(.orange)
+                                    .background(Color(hex: "FF1E27").opacity(0.2))
+                                    .foregroundColor(Color(hex: "FF1E27"))
                                     .cornerRadius(6)
                                 
                                 Text("ARM64 NATIVE")
@@ -52,7 +52,7 @@ struct MainDashboardView: View {
                                 
                                 Image(systemName: "arrow.triangle.2.circlepath")
                                     .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(.orange)
+                                    .foregroundColor(Color(hex: "FF1E27"))
                                     .rotationEffect(.degrees(isSpinningRefresh ? 360 : 0))
                             }
                         }
@@ -69,7 +69,7 @@ struct MainDashboardView: View {
                         Spacer()
                         Text("REALTIME ICONS")
                             .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(.orange)
+                            .foregroundColor(Color(hex: "FF1E27"))
                     }
                     .padding(.horizontal, 20)
                     
@@ -223,7 +223,7 @@ struct GameLaunchCard: View {
     let badgeText: String
     
     var body: some View {
-        GlassCard(borderColor: Color.orange.opacity(0.25), cornerRadius: 18) {
+        GlassCard(borderColor: Color(hex: "FF1E27").opacity(0.3), cornerRadius: 18) {
             HStack(spacing: 16) {
                 // Real-time Icon with Fallback
                 ZStack {
@@ -265,7 +265,7 @@ struct GameLaunchCard: View {
                     
                     Text(badgeText)
                         .font(.system(size: 10, weight: .heavy, design: .monospaced))
-                        .foregroundColor(.orange)
+                        .foregroundColor(Color(hex: "FF1E27"))
                     
                     Text("Auto OB56 Injection")
                         .font(.system(size: 11))
@@ -286,13 +286,13 @@ struct GameLaunchCard: View {
                     .padding(.vertical, 10)
                     .background(
                         LinearGradient(
-                            colors: [Color.orange, Color.red],
+                            colors: [Color(hex: "FF1E27"), Color(hex: "990000")],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
                     .cornerRadius(10)
-                    .shadow(color: Color.orange.opacity(0.3), radius: 6, y: 2)
+                    .shadow(color: Color(hex: "FF1E27").opacity(0.35), radius: 6, y: 2)
                 }
             }
         }
@@ -306,7 +306,6 @@ struct GameLaunchCard: View {
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
             } else {
-                // If scheme not available or on simulator, open App Store link
                 if let appStoreURL = URL(string: "https://apps.apple.com/app/id1300146617") {
                     UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
                 }

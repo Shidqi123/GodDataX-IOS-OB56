@@ -12,13 +12,13 @@ struct StatusProfileView: View {
                 VStack(spacing: 8) {
                     ZStack {
                         Circle()
-                            .fill(LinearGradient(colors: [Color.orange.opacity(0.3), Color.red.opacity(0.1)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                            .fill(LinearGradient(colors: [Color(hex: "FF1E27").opacity(0.25), Color.black], startPoint: .topLeading, endPoint: .bottomTrailing))
                             .frame(width: 80, height: 80)
-                            .overlay(Circle().stroke(Color.orange.opacity(0.5), lineWidth: 1.5))
+                            .overlay(Circle().stroke(Color(hex: "FF1E27").opacity(0.6), lineWidth: 1.5))
                         
                         Image(systemName: "person.badge.shield.checkmark.fill")
                             .font(.system(size: 34))
-                            .foregroundColor(.orange)
+                            .foregroundColor(Color(hex: "FF1E27"))
                     }
                     
                     Text("ACTIVE LICENSE")
@@ -32,7 +32,7 @@ struct StatusProfileView: View {
                 .padding(.top, 16)
                 
                 // Card 1: License & Security Details
-                GlassCard(borderColor: Color.orange.opacity(0.3), cornerRadius: 18) {
+                GlassCard(borderColor: Color(hex: "FF1E27").opacity(0.3), cornerRadius: 18) {
                     VStack(spacing: 14) {
                         ProfileInfoRow(
                             label: "Version Status",
@@ -65,7 +65,7 @@ struct StatusProfileView: View {
                             label: "Device Model",
                             value: UIDevice.current.model,
                             icon: "iphone",
-                            color: .orange
+                            color: Color(hex: "FF1E27")
                         )
                     }
                 }
@@ -85,7 +85,7 @@ struct StatusProfileView: View {
                                     Text("COPY")
                                 }
                                 .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(.orange)
+                                .foregroundColor(Color(hex: "FF1E27"))
                             }
                         }
                         
@@ -122,7 +122,7 @@ struct StatusProfileView: View {
                             Spacer()
                             Text("GodDataX Pure iOS")
                                 .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.orange)
+                                .foregroundColor(Color(hex: "FF1E27"))
                         }
                         
                         Divider().background(Color.white.opacity(0.08))
@@ -147,12 +147,12 @@ struct StatusProfileView: View {
                         Text("LOGOUT SESSION")
                     }
                     .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(.red)
+                    .foregroundColor(Color(hex: "FF1E27"))
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(Color.red.opacity(0.1))
+                    .background(Color(hex: "FF1E27").opacity(0.1))
                     .cornerRadius(14)
-                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.red.opacity(0.3), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color(hex: "FF1E27").opacity(0.3), lineWidth: 1))
                 }
                 .padding(.horizontal, 20)
                 

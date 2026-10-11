@@ -27,7 +27,7 @@ struct ContentView: View {
                     }
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                     
-                    // Floating Cyberpunk Bottom Navbar
+                    // Floating Bottom Navbar
                     HStack(spacing: 0) {
                         NavBarItem(icon: "gamecontroller.fill", title: "Home", isSelected: selectedTab == 0) {
                             switchTab(0)
@@ -49,7 +49,7 @@ struct ContentView: View {
                             .overlay(
                                 Capsule().stroke(
                                     LinearGradient(
-                                        colors: [Color.orange.opacity(0.4), Color.red.opacity(0.2)],
+                                        colors: [Color(hex: "FF1E27").opacity(0.6), Color(hex: "880000").opacity(0.2)],
                                         startPoint: .leading,
                                         endPoint: .trailing
                                     ),
@@ -99,7 +99,7 @@ struct NavBarItem: View {
             .padding(.horizontal, isSelected ? 16 : 14)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.orange : Color.clear)
+                    .fill(isSelected ? Color(hex: "FF1E27") : Color.clear)
             )
         }
         .frame(maxWidth: .infinity)
