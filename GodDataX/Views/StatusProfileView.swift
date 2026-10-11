@@ -253,6 +253,7 @@ struct StatusProfileView: View {
         .animation(.spring(response: 0.38, dampingFraction: 0.8), value: activeNotice != nil)
         .onAppear {
             elapsedSeconds = max(0, Int(Date().timeIntervalSince(authService.sessionStartTime)))
+            authService.syncUserWithFirebase()
         }
         .onReceive(timer) { _ in
             elapsedSeconds = max(0, Int(Date().timeIntervalSince(authService.sessionStartTime)))

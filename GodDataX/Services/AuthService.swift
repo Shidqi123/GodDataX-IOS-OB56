@@ -8,7 +8,7 @@ class AuthService: ObservableObject {
     @Published var currentKey: String = ""
     @Published var hwid: String = ""
     @Published var deviceUserId: String = ""
-    @Published var expiryDateString: String = "OB57 (27 Nov 2026)"
+    @Published var expiryDateString: String = "OB56"
     @Published var errorMessage: String?
     @Published var isVerifying: Bool = false
     public let sessionStartTime = Date()
@@ -38,27 +38,12 @@ class AuthService: ObservableObject {
     private let hwidStorage = "goddatax_device_hwid"
     private let deviceUserStorage = "goddatax_device_user_id"
     
-    static func calculateDefaultOB57Countdown() -> String {
-        let calendar = Calendar.current
-        var comps = DateComponents()
-        comps.year = 2026
-        comps.month = 11
-        comps.day = 27
-        if let target = calendar.date(from: comps) {
-            let days = calendar.dateComponents([.day], from: Date(), to: target).day ?? 47
-            if days > 0 {
-                return "OB57 (\(days) Hari / 27 Nov 2026)"
-            }
-        }
-        return "27 Nov 2026"
-    }
-    
     init() {
         self.hwid = getOrGenerateHWID()
         self.deviceUserId = getOrGenerateDeviceUserId()
-        self.expiryDateString = AuthService.calculateDefaultOB57Countdown()
+        self.expiryDateString = "OB56"
         checkStoredSession()
-        fetchFirebaseExpiry()
+        syncUserWithFirebase()
     }
     
     func getOrGenerateHWID() -> String {
@@ -93,46 +78,89 @@ class AuthService: ObservableObject {
         return generated
     }
     
-    func fetchFirebaseExpiry() {
+    /// Syncs user with Firebase, locks 1 Device 1 User, and logs out user if OB56 expired or upgraded to OB57
+    func syncUserWithFirebase() {
         let cleanBaseURL = firebaseDatabaseURL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-        let targetKey = self.currentKey.isEmpty ? self.hwid : self.currentKey
+        guard !cleanBaseURL.isEmpty else { return }
         
-        let pathsToTry = [
-            "\(cleanBaseURL)/users/\(self.deviceUserId)/expiry.json",
-            "\(cleanBaseURL)/users/\(self.hwid)/expiry.json",
-            "\(cleanBaseURL)/licenses/\(targetKey)/expiry.json"
-        ]
-        
-        for path in pathsToTry {
-            guard let url = URL(string: path) else { continue }
-            var request = URLRequest(url: url)
-            request.httpMethod = "GET"
-            request.timeoutInterval = 3.0
-            
-            URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-                guard let self = self, let data = data, error == nil else { return }
+        // 1. Check Global App Config (OB56 vs OB57 auto-logout)
+        if let configURL = URL(string: "\(cleanBaseURL)/app_config.json") {
+            var req = URLRequest(url: configURL)
+            req.httpMethod = "GET"
+            req.timeoutInterval = 3.0
+            URLSession.shared.dataTask(with: req) { [weak self] data, res, err in
+                guard let self = self, let data = data, err == nil,
+                      let httpRes = res as? HTTPURLResponse, httpRes.statusCode == 200,
+                      let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else { return }
                 
-                // Verify HTTP 200 OK
-                if let httpRes = response as? HTTPURLResponse, httpRes.statusCode != 200 {
+                // If active_version in Firebase is OB57 (next update), force logout!
+                if let activeVer = json["active_version"] as? String, activeVer.uppercased() != "OB56" {
+                    DispatchQueue.main.async {
+                        self.logout()
+                        self.errorMessage = "Aplikasi versi OB56 telah kedaluwarsa. Silakan perbarui ke \(activeVer)!"
+                    }
                     return
-                }
-                
-                guard let rawText = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
-                      !rawText.isEmpty, rawText != "null" else { return }
-                
-                let lower = rawText.lowercased()
-                if lower.contains("error") || lower.contains("404") || lower.contains("<html") || lower.contains("{") {
-                    return
-                }
-                
-                let cleanExpiry = rawText.replacingOccurrences(of: "\"", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !cleanExpiry.isEmpty else { return }
-                
-                DispatchQueue.main.async {
-                    self.expiryDateString = cleanExpiry
                 }
             }.resume()
         }
+        
+        // 2. Query /users/{deviceUserId}.json to enforce 1 Device 1 User lock and fetch expiry
+        guard let userURL = URL(string: "\(cleanBaseURL)/users/\(self.deviceUserId).json") else { return }
+        var userReq = URLRequest(url: userURL)
+        userReq.httpMethod = "GET"
+        userReq.timeoutInterval = 3.0
+        
+        URLSession.shared.dataTask(with: userReq) { [weak self] data, res, err in
+            guard let self = self, let data = data, err == nil,
+                  let httpRes = res as? HTTPURLResponse, httpRes.statusCode == 200 else { return }
+            
+            let rawStr = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if rawStr == "null" || rawStr.isEmpty {
+                // User does not exist yet: auto-register to Firebase immediately
+                self.recordUserInFirebase(key: self.currentKey)
+                return
+            }
+            
+            guard let userDict = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else { return }
+            
+            // Check status (banned / expired)
+            if let status = userDict["status"] as? String {
+                if status.lowercased() == "expired" {
+                    DispatchQueue.main.async {
+                        self.logout()
+                        self.errorMessage = "Masa aktif lisensi OB56 Anda telah berakhir."
+                    }
+                    return
+                } else if status.lowercased() == "banned" {
+                    DispatchQueue.main.async {
+                        self.logout()
+                        self.errorMessage = "Akun/Device Anda telah dinonaktifkan."
+                    }
+                    return
+                }
+            }
+            
+            // Check 1 Device 1 User lock: verify locked_hwid matches this iPhone's HWID
+            if let lockedHwid = userDict["locked_hwid"] as? String, !lockedHwid.isEmpty, lockedHwid != "GDX-IOS-DEFAULT" {
+                if lockedHwid != self.hwid {
+                    DispatchQueue.main.async {
+                        self.logout()
+                        self.errorMessage = "User ID ini terkunci pada perangkat lain (1 Device 1 User)!"
+                    }
+                    return
+                }
+            }
+            
+            // Update expiry display from Firebase
+            if let exp = userDict["expiry"] as? String, !exp.isEmpty {
+                DispatchQueue.main.async {
+                    self.expiryDateString = exp
+                }
+            }
+            
+            // Keep device active record up to date in Firebase
+            self.recordUserInFirebase(key: self.currentKey)
+        }.resume()
     }
     
     private func checkStoredSession() {
@@ -181,7 +209,7 @@ class AuthService: ObservableObject {
         
         // Register / record user session in Firebase Database asynchronously
         self.recordUserInFirebase(key: key)
-        self.fetchFirebaseExpiry()
+        self.syncUserWithFirebase()
         
         completion(true, "Akses Lisensi Diterima")
     }
@@ -215,18 +243,21 @@ class AuthService: ObservableObject {
         }.resume()
     }
     
-    /// Records iOS user login & HWID into Firebase Realtime Database: /users/{hwid}.json
-    private func recordUserInFirebase(key: String) {
+    /// Records iOS user login & HWID into Firebase Realtime Database: /users/{deviceUserId}.json
+    func recordUserInFirebase(key: String = "") {
         let cleanBaseURL = firebaseDatabaseURL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-        guard let url = URL(string: "\(cleanBaseURL)/users/\(self.hwid).json") else { return }
+        guard !cleanBaseURL.isEmpty, let userUrl = URL(string: "\(cleanBaseURL)/users/\(self.deviceUserId).json") else { return }
         
         let formatter = ISO8601DateFormatter()
         let now = formatter.string(from: Date())
         
         let payload: [String: Any] = [
             "hwid": self.hwid,
+            "locked_hwid": self.hwid,
             "device_user_id": self.deviceUserId,
-            "license_key": key,
+            "license_key": key.isEmpty ? (self.currentKey.isEmpty ? "OB56VIP" : self.currentKey) : key,
+            "expiry": self.expiryDateString,
+            "status": "active",
             "last_login": now,
             "platform": "iOS",
             "version": "OB56",
@@ -236,23 +267,20 @@ class AuthService: ObservableObject {
         
         guard let httpBody = try? JSONSerialization.data(withJSONObject: payload, options: []) else { return }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "PATCH"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = httpBody
-        request.timeoutInterval = 5.0
+        var userReq = URLRequest(url: userUrl)
+        userReq.httpMethod = "PATCH"
+        userReq.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        userReq.httpBody = httpBody
+        userReq.timeoutInterval = 5.0
+        URLSession.shared.dataTask(with: userReq) { _, _, _ in }.resume()
         
-        URLSession.shared.dataTask(with: request) { _, _, _ in
-            // Registered in Firebase successfully
-        }.resume()
-        
-        if let userUrl = URL(string: "\(cleanBaseURL)/users/\(self.deviceUserId).json") {
-            var userReq = URLRequest(url: userUrl)
-            userReq.httpMethod = "PATCH"
-            userReq.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            userReq.httpBody = httpBody
-            userReq.timeoutInterval = 5.0
-            URLSession.shared.dataTask(with: userReq) { _, _, _ in }.resume()
+        if let hwidUrl = URL(string: "\(cleanBaseURL)/users/\(self.hwid).json") {
+            var hwidReq = URLRequest(url: hwidUrl)
+            hwidReq.httpMethod = "PATCH"
+            hwidReq.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            hwidReq.httpBody = httpBody
+            hwidReq.timeoutInterval = 5.0
+            URLSession.shared.dataTask(with: hwidReq) { _, _, _ in }.resume()
         }
     }
     
