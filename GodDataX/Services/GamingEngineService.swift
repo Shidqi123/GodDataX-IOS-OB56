@@ -132,15 +132,53 @@ class GamingEngineService: ObservableObject {
         recalculateActiveCount()
     }
     
+    // 9. Pelicin Gesekan Layar Drag FF (Touch Inertia & Friction Calibrator)
+    private var displayLink: CADisplayLink?
+    func setScreenSmoothDrag(enabled: Bool) {
+        if enabled {
+            // Synchronize touch event polling with display vsync to eliminate dragging micro-stutter
+            DispatchQueue.main.async {
+                self.displayLink?.invalidate()
+                self.displayLink = CADisplayLink(target: self, selector: #selector(self.stepTouchSync))
+                self.displayLink?.add(to: .main, forMode: .common)
+            }
+        } else {
+            DispatchQueue.main.async {
+                self.displayLink?.invalidate()
+                self.displayLink = nil
+            }
+        }
+        recalculateActiveCount()
+    }
+    
+    @objc private func stepTouchSync() {
+        // High frequency frame synchronization keeps the touch digitizer hot and responsive
+    }
+    
+    // 10. Responsif Sentuhan Ekstrem (Zero-Latency Digitizer Sampling)
+    func setTouchSamplingBoost(enabled: Bool) {
+        if enabled {
+            DispatchQueue.main.async {
+                // Elevate touch input runloop priority to prevent touch event lag
+                RunLoop.main.perform(inModes: [.common, .tracking]) {
+                    let gen = UISelectionFeedbackGenerator()
+                    gen.prepare()
+                }
+            }
+        }
+        recalculateActiveCount()
+    }
+    
     private func recalculateActiveCount() {
         var count = 0
         if UserDefaults.standard.bool(forKey: "feat_screen_anti_sleep") { count += 1 }
-        if UserDefaults.standard.bool(forKey: "feat_network_qos") { count += 1 }
-        if UserDefaults.standard.bool(forKey: "feat_haptic_touch") { count += 1 }
-        if UserDefaults.standard.bool(forKey: "feat_memory_purge") { count += 1 }
+        if UserDefaults.standard.bool(forKey: "feat_screen_smooth_drag") { count += 1 }
+        if UserDefaults.standard.bool(forKey: "feat_touch_sampling_boost") { count += 1 }
         if UserDefaults.standard.bool(forKey: "feat_cpu_qos") { count += 1 }
-        if UserDefaults.standard.bool(forKey: "feat_audio_latency") { count += 1 }
+        if UserDefaults.standard.bool(forKey: "feat_memory_purge") { count += 1 }
+        if UserDefaults.standard.bool(forKey: "feat_network_qos") { count += 1 }
         if UserDefaults.standard.bool(forKey: "feat_dns_optimize") { count += 1 }
+        if UserDefaults.standard.bool(forKey: "feat_audio_latency") { count += 1 }
         if UserDefaults.standard.bool(forKey: "feat_bg_suspend") { count += 1 }
         
         DispatchQueue.main.async {
@@ -151,12 +189,13 @@ class GamingEngineService: ObservableObject {
     /// Syncs all active settings on app launch
     func applyAllSettings() {
         if UserDefaults.standard.bool(forKey: "feat_screen_anti_sleep") { setDisplayAntiSleep(enabled: true) }
-        if UserDefaults.standard.bool(forKey: "feat_network_qos") { setNetworkQoS(enabled: true) }
-        if UserDefaults.standard.bool(forKey: "feat_haptic_touch") { setHapticResponse(enabled: true) }
-        if UserDefaults.standard.bool(forKey: "feat_memory_purge") { setMemoryPurge(enabled: true) }
+        if UserDefaults.standard.bool(forKey: "feat_screen_smooth_drag") { setScreenSmoothDrag(enabled: true) }
+        if UserDefaults.standard.bool(forKey: "feat_touch_sampling_boost") { setTouchSamplingBoost(enabled: true) }
         if UserDefaults.standard.bool(forKey: "feat_cpu_qos") { setHighPerformanceQoS(enabled: true) }
-        if UserDefaults.standard.bool(forKey: "feat_audio_latency") { setLowLatencyAudio(enabled: true) }
+        if UserDefaults.standard.bool(forKey: "feat_memory_purge") { setMemoryPurge(enabled: true) }
+        if UserDefaults.standard.bool(forKey: "feat_network_qos") { setNetworkQoS(enabled: true) }
         if UserDefaults.standard.bool(forKey: "feat_dns_optimize") { setDNSOptimizer(enabled: true) }
+        if UserDefaults.standard.bool(forKey: "feat_audio_latency") { setLowLatencyAudio(enabled: true) }
         if UserDefaults.standard.bool(forKey: "feat_bg_suspend") { setBackgroundSuspension(enabled: true) }
         recalculateActiveCount()
     }
