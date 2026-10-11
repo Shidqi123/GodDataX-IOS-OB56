@@ -48,6 +48,7 @@ struct LoginView: View {
                     
                     Text("GODDATAX")
                         .font(.system(size: 32, weight: .black, design: .rounded))
+                        .kerning(3)
                         .foregroundStyle(
                             LinearGradient(
                                 colors: [.white, Color(hex: "FF8800")],
@@ -55,7 +56,6 @@ struct LoginView: View {
                                 endPoint: .bottom
                             )
                         )
-                        .kerning(3)
                     
                     Text("iOS Edition • OB56 Support")
                         .font(.system(size: 13, weight: .medium, design: .monospaced))
