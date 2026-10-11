@@ -25,6 +25,7 @@
 		AA010016 /* Rajdhani-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BB010017 /* Rajdhani-Medium.ttf */; };
 		AA010017 /* Rajdhani-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BB010018 /* Rajdhani-Regular.ttf */; };
 		AA010018 /* LanguageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010019 /* LanguageManager.swift */; };
+		AA010019 /* GamingEngineService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010020 /* GamingEngineService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +49,7 @@
 		BB010017 /* Rajdhani-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Fonts/Rajdhani-Medium.ttf; sourceTree = "<group>"; };
 		BB010018 /* Rajdhani-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Fonts/Rajdhani-Regular.ttf; sourceTree = "<group>"; };
 		BB010019 /* LanguageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageManager.swift; sourceTree = "<group>"; };
+		BB010020 /* GamingEngineService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamingEngineService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +127,7 @@
 				BB010003 /* FreeFireIconManager.swift */,
 				BB010004 /* AuthService.swift */,
 				BB010019 /* LanguageManager.swift */,
+				BB010020 /* GamingEngineService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -237,6 +240,7 @@
 				AA010011 /* ContentView.swift in Sources */,
 				AA010013 /* FontManager.swift in Sources */,
 				AA010018 /* LanguageManager.swift in Sources */,
+				AA010019 /* GamingEngineService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -301,7 +305,7 @@
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_IDENTITY = "";
-				CURRENT_PROJECT_VERSION = 211;
+				CURRENT_PROJECT_VERSION = 212;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GodDataX/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -325,7 +329,7 @@
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_IDENTITY = "";
-				CURRENT_PROJECT_VERSION = 211;
+				CURRENT_PROJECT_VERSION = 212;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = GodDataX/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

@@ -28,35 +28,25 @@ struct GlassCard<Content: View>: View {
 struct CustomToggleRow: View {
     let title: String
     let subtitle: String
-    let icon: String
-    let iconColor: Color
     @Binding var isOn: Bool
+    var onChange: ((Bool) -> Void)? = nil
     
     var body: some View {
-        HStack(spacing: 14) {
-            ZStack {
-                Circle()
-                    .fill(iconColor.opacity(0.15))
-                    .frame(width: 40, height: 40)
-                
-                Image(systemName: icon)
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(iconColor)
-            }
-            
+        HStack(alignment: .center, spacing: 14) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
-                    .font(.rajdhani(16, weight: .bold))
+                    .font(.rajdhani(15, weight: .bold))
                     .foregroundColor(.white)
                 
                 Text(subtitle)
                     .font(.rajdhani(13, weight: .medium))
                     .foregroundColor(Color.gray.opacity(0.85))
+                    .fixedSize(horizontal: false, vertical: true)
             }
             
-            Spacer()
+            Spacer(minLength: 12)
             
-            GamingToggle(isOn: $isOn)
+            GamingToggle(isOn: $isOn, onChange: onChange)
         }
         .padding(.vertical, 4)
     }
@@ -65,6 +55,7 @@ struct CustomToggleRow: View {
 // Gaming Toggle matching reference Image 4 (Red Track, Squircle Thumb)
 struct GamingToggle: View {
     @Binding var isOn: Bool
+    var onChange: ((Bool) -> Void)? = nil
     
     var body: some View {
         Button(action: {
@@ -73,6 +64,7 @@ struct GamingToggle: View {
             withAnimation(.spring(response: 0.28, dampingFraction: 0.72)) {
                 isOn.toggle()
             }
+            onChange?(isOn)
         }) {
             ZStack(alignment: isOn ? .trailing : .leading) {
                 // Background Track

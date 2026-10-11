@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import Security
 
 class AuthService: ObservableObject {
     static let shared = AuthService()
@@ -97,33 +98,51 @@ class AuthService: ObservableObject {
     }
     
     func getOrGenerateHWID() -> String {
-        if let stored = UserDefaults.standard.string(forKey: hwidStorage) {
+        // 1. Check iOS Keychain (persists across app uninstall and reinstall on this device!)
+        if let keychainHWID = KeychainHelper.load(key: hwidStorage), !keychainHWID.isEmpty {
+            UserDefaults.standard.set(keychainHWID, forKey: hwidStorage)
+            return keychainHWID
+        }
+        
+        // 2. Check UserDefaults
+        if let stored = UserDefaults.standard.string(forKey: hwidStorage), !stored.isEmpty {
+            KeychainHelper.save(key: hwidStorage, value: stored)
             return stored
         }
         
+        // 3. Generate stable hardware ID based on vendor ID or persistent UUID
         let vendorId = UIDevice.current.identifierForVendor?.uuidString ?? UUID().uuidString
         let prefix = "GDX-IOS"
         let shortId = String(vendorId.prefix(12)).uppercased()
         let newHWID = "\(prefix)-\(shortId)"
         
+        // Persist to Keychain and UserDefaults
+        KeychainHelper.save(key: hwidStorage, value: newHWID)
         UserDefaults.standard.set(newHWID, forKey: hwidStorage)
         return newHWID
     }
     
     func getOrGenerateDeviceUserId() -> String {
+        // 1. Check iOS Keychain (persists across uninstall/reinstall!)
+        if let keychainUser = KeychainHelper.load(key: deviceUserStorage), !keychainUser.isEmpty {
+            UserDefaults.standard.set(keychainUser, forKey: deviceUserStorage)
+            return keychainUser
+        }
+        
+        // 2. Check UserDefaults
         if let stored = UserDefaults.standard.string(forKey: deviceUserStorage), !stored.isEmpty {
+            KeychainHelper.save(key: deviceUserStorage, value: stored)
             return stored
         }
         
-        // Generate random user ID unique to this iPhone (e.g. user-00b9987d2)
+        // 3. Generate deterministic user ID derived directly from the persistent HWID
+        // This ensures that even across fresh reinstalls, the exact same User ID is produced!
         let clean = self.hwid.replacingOccurrences(of: "-", with: "").replacingOccurrences(of: "GDXIOS", with: "").lowercased()
-        let randomChars = "0123456789abcdef"
-        var randomHex = ""
-        for _ in 0..<4 {
-            if let c = randomChars.randomElement() { randomHex.append(c) }
-        }
-        let suffix = clean.count >= 5 ? String(clean.prefix(5)) + randomHex.prefix(4) : "00b9987d2"
+        let suffix = clean.count >= 8 ? String(clean.prefix(8)) : "00b9987d"
         let generated = "user-\(suffix)"
+        
+        // Persist to Keychain and UserDefaults
+        KeychainHelper.save(key: deviceUserStorage, value: generated)
         UserDefaults.standard.set(generated, forKey: deviceUserStorage)
         return generated
     }
@@ -346,5 +365,50 @@ class AuthService: ObservableObject {
         UserDefaults.standard.removeObject(forKey: authKeyStorage)
         self.currentKey = ""
         self.isAuthenticated = false
+    }
+}
+
+// MARK: - iOS Keychain Persistent Storage (Survives App Delete & Reinstall)
+struct KeychainHelper {
+    static let service = "com.goddatax.ios.device"
+    
+    static func save(key: String, value: String) {
+        guard let data = value.data(using: .utf8) else { return }
+        
+        // Remove existing item if any
+        let deleteQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: key
+        ]
+        SecItemDelete(deleteQuery as CFDictionary)
+        
+        // Add item with AccessibleAfterFirstUnlockThisDeviceOnly to ensure it stays on this physical device
+        let addQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: key,
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        ]
+        SecItemAdd(addQuery as CFDictionary, nil)
+    }
+    
+    static func load(key: String) -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: key,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        
+        var dataTypeRef: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &dataTypeRef)
+        
+        if status == errSecSuccess, let data = dataTypeRef as? Data {
+            return String(data: data, encoding: .utf8)
+        }
+        return nil
     }
 }
