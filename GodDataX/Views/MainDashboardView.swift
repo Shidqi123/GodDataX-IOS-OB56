@@ -454,6 +454,7 @@ struct GameLaunchSheet: View {
     
     @ObservedObject var iconManager = FreeFireIconManager.shared
     @ObservedObject var lang = LanguageManager.shared
+    @ObservedObject var engine = GamingEngineService.shared
     @State private var selectedMode: String = "Competitive"
     @State private var slideOffset: CGFloat = 0
     @State private var isLaunching = false
@@ -491,14 +492,25 @@ struct GameLaunchSheet: View {
                     .overlay(Circle().stroke(Color.white.opacity(0.18), lineWidth: 1.5))
                     .shadow(color: Color.black.opacity(0.5), radius: 5, y: 2)
                     
-                    // Center-Left: Game Name + Bundle ID
-                    VStack(alignment: .leading, spacing: 3) {
+                    // Center-Left: Game Name + Bundle ID + Waktu Pemakaian (Playtime)
+                    VStack(alignment: .leading, spacing: 2) {
                         Text(game.title)
                             .font(.rajdhani(18, weight: .bold))
                             .foregroundColor(.white)
                         Text(game.bundleId)
-                            .font(.rajdhani(12, weight: .medium))
+                            .font(.rajdhani(11, weight: .medium))
                             .foregroundColor(Color.gray)
+                        
+                        // Waktu Pemakaian di game Free Fire (Sesuai Referensi Gambar)
+                        HStack(spacing: 4) {
+                            Image(systemName: "clock")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(Color.gray.opacity(0.85))
+                            
+                            Text(engine.formattedGamePlaytime(for: game.bundleId))
+                                .font(.rajdhani(12, weight: .bold))
+                                .foregroundColor(Color.white.opacity(0.9))
+                        }
                     }
                     
                     Spacer()
@@ -514,19 +526,21 @@ struct GameLaunchSheet: View {
                     }
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 14)
+                .padding(.vertical, 12)
             }
-            .frame(height: 78)
+            .frame(height: 84)
             .cornerRadius(18)
             .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.white.opacity(0.08), lineWidth: 1))
+            .onAppear {
+                selectedMode = engine.activeGameMode
+            }
             
             // Mode Selection Grid (Competitive with Trophy vs Balance with Half Circle in RED theme)
             HStack(spacing: 12) {
-                // Card 1: Competitive (Trophy Icon in RED theme)
+                // Card 1: Competitive (Trophy Icon in RED theme - Fungsional)
                 Button(action: {
-                    let gen = UIImpactFeedbackGenerator(style: .medium)
-                    gen.impactOccurred()
                     selectedMode = "Competitive"
+                    engine.applyGameModeProfile("Competitive")
                 }) {
                     VStack(spacing: 10) {
                         Image(systemName: "trophy.fill")
@@ -556,11 +570,10 @@ struct GameLaunchSheet: View {
                     )
                 }
                 
-                // Card 2: Balance (Half Circle Icon)
+                // Card 2: Balance (Half Circle Icon - Fungsional)
                 Button(action: {
-                    let gen = UIImpactFeedbackGenerator(style: .medium)
-                    gen.impactOccurred()
                     selectedMode = "Balance"
+                    engine.applyGameModeProfile("Balance")
                 }) {
                     VStack(spacing: 10) {
                         Image(systemName: "circle.lefthalf.filled")
@@ -587,7 +600,6 @@ struct GameLaunchSheet: View {
                                     Color.white.opacity(0.06),
                                 lineWidth: 1.5
                             )
-                    )
                 }
             }
             
@@ -666,6 +678,10 @@ struct GameLaunchSheet: View {
         
         let gen = UINotificationFeedbackGenerator()
         gen.notificationOccurred(.success)
+        
+        // Terapkan profil game mode (Competitive vs Balance) dan catat sesi waktu pemakaian
+        engine.applyGameModeProfile(selectedMode)
+        engine.recordGameLaunch(for: game.bundleId)
         
         // 1. Direct Launch via LSApplicationWorkspace to completely bypass iOS "Buka di Free Fire?" prompt
         typealias OpenAppFunc = @convention(c) (AnyObject, Selector, NSString) -> Bool

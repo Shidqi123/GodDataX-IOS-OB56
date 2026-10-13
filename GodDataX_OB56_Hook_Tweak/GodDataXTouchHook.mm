@@ -19,6 +19,7 @@
 // Struktur Konfigurasi Sumbu X & Y
 struct GDXTouchConfig {
     BOOL isEnabled;
+    BOOL isCompetitiveMode;
     float sensX;
     float sensY;
     float responseSpeed;
@@ -26,6 +27,7 @@ struct GDXTouchConfig {
 
 static struct GDXTouchConfig currentConfig = {
     .isEnabled = YES,
+    .isCompetitiveMode = YES,
     .sensX = 1.80f,
     .sensY = 3.20f,
     .responseSpeed = 1.0f
@@ -49,7 +51,15 @@ static void loadGDXConfig(void) {
                     if (dict[@"sensitivityX"]) currentConfig.sensX = [dict[@"sensitivityX"] floatValue];
                     if (dict[@"sensitivityY"]) currentConfig.sensY = [dict[@"sensitivityY"] floatValue];
                     if (dict[@"responseSpeed"]) currentConfig.responseSpeed = [dict[@"responseSpeed"] floatValue];
-                    NSLog(@"[GodDataX Hook] Loaded Config: enabled=%d, X=%.2f, Y=%.2f", currentConfig.isEnabled, currentConfig.sensX, currentConfig.sensY);
+                    if (dict[@"gameMode"]) {
+                        NSString *mode = [dict[@"gameMode"] description];
+                        currentConfig.isCompetitiveMode = [mode isEqualToString:@"Competitive"];
+                    }
+                    NSLog(@"[GodDataX Hook] Loaded Config: enabled=%d, mode=%s, X=%.2f, Y=%.2f",
+                          currentConfig.isEnabled,
+                          currentConfig.isCompetitiveMode ? "Competitive" : "Balance",
+                          currentConfig.sensX,
+                          currentConfig.sensY);
                     return;
                 }
             }
@@ -74,8 +84,13 @@ static CGPoint hook_locationInView(UITouch *self, SEL _cmd, UIView *view) {
     CGFloat dy = orig.y - prev.y;
     
     // Lipatgandakan delta pergerakan dengan sensitivitas Sumbu X dan Y
-    CGFloat amplifiedDx = dx * (currentConfig.sensX - 1.0f);
-    CGFloat amplifiedDy = dy * (currentConfig.sensY - 1.0f);
+    // Mode Competitive: Respons seketika (instant boost) tanpa interpolasi delay
+    // Mode Balance: Pergerakan halus stabil dengan kontrol termal
+    CGFloat multX = currentConfig.isCompetitiveMode ? (currentConfig.sensX - 1.0f) : (currentConfig.sensX - 1.0f) * 0.90f;
+    CGFloat multY = currentConfig.isCompetitiveMode ? (currentConfig.sensY - 1.0f) : (currentConfig.sensY - 1.0f) * 0.90f;
+    
+    CGFloat amplifiedDx = dx * multX;
+    CGFloat amplifiedDy = dy * multY;
     
     return CGPointMake(orig.x + amplifiedDx, orig.y + amplifiedDy);
 }
