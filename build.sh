@@ -35,6 +35,7 @@ if [ -z "$APP_PATH" ]; then
     echo "ERROR: GodDataX.app not found in build directory!"
     find build
     exit 1
+fi
 echo "Found app at: $APP_PATH"
 echo "=== Stripping debug symbols & strings ==="
 strip -r -u "$APP_PATH/GodDataX" 2>/dev/null || true
