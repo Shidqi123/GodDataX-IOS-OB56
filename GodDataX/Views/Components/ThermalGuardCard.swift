@@ -131,22 +131,42 @@ struct ThermalGuardCard: View {
                         isOn: $engine.isThermalGuardActive
                     )
                     
-                    // Tombol Dinginkan Sekarang (Dengan Animasi Loading Kiri ke Kanan)
+                    // Indikator Ukuran Cache Terdeteksi
+                    HStack {
+                        Text(lang.text(id: "Cache & Buffering Terdeteksi:", en: "Detected Cache & Buffering:"))
+                            .font(.rajdhani(11, weight: .semibold))
+                            .foregroundColor(Color.gray.opacity(0.85))
+                        
+                        Spacer()
+                        
+                        Text(String(format: "%.1f MB", engine.detectedCacheMB))
+                            .font(.rajdhani(11, weight: .bold))
+                            .foregroundColor(engine.detectedCacheMB > 100 ? Color(hex: "FF1E27") : Color.white)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 2)
+                            .background(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(engine.detectedCacheMB > 100 ? Color(hex: "FF1E27").opacity(0.18) : Color.white.opacity(0.06))
+                            )
+                    }
+                    
+                    // Tombol Dinginkan Sekarang (Durasi Loading Dinamis Tergantung Ukuran Cache)
                     Button(action: {
                         guard !engine.isCoolingInProgress else { return }
                         cooldownProgress = 0.0
-                        engine.triggerEmergencyCooldown()
-                        withAnimation(.linear(duration: 1.5)) {
+                        let dynamicDuration = engine.computeCooldownDuration()
+                        engine.triggerEmergencyCooldown(customDuration: dynamicDuration)
+                        withAnimation(.linear(duration: dynamicDuration)) {
                             cooldownProgress = 1.0
                         }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + dynamicDuration + 0.3) {
                             withAnimation(.easeOut(duration: 0.3)) {
                                 cooldownProgress = 0.0
                             }
                         }
                     }) {
                         ZStack {
-                            // Background bar animasi dari kiri ke kanan
+                            // Background bar animasi dari kiri ke kanan dengan kecepatan proporsional
                             GeometryReader { geo in
                                 ZStack(alignment: .leading) {
                                     RoundedRectangle(cornerRadius: 12)

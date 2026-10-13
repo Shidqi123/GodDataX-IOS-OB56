@@ -2,7 +2,7 @@ import SwiftUI
 
 struct AppConfig {
     static let appName = "GodDataX iOS"
-    static let appVersion = "2.2.3 (Build 223)"
+    static let appVersion = "2.2.4 (Build 224)"
     static let targetOBVersion = "OB56"
     static let developer = "Kutoo"
     static let minIOS = "15.0"
