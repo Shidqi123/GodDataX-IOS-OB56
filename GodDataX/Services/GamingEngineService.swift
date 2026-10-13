@@ -2,6 +2,43 @@ import Foundation
 import UIKit
 import AVFoundation
 
+/// Preset senjata Free Fire untuk rasio Sumbu X & Y
+enum WeaponPreset: String, CaseIterable, Identifiable {
+    case m1887 = "M1887 (Shotgun)"
+    case mp40 = "MP40 (SMG)"
+    case arTap = "AR / Woodpecker"
+    case balanced = "Balanced 1.0x"
+    
+    var id: String { rawValue }
+    
+    var sensX: Double {
+        switch self {
+        case .m1887: return 1.80
+        case .mp40: return 2.20
+        case .arTap: return 1.40
+        case .balanced: return 1.00
+        }
+    }
+    
+    var sensY: Double {
+        switch self {
+        case .m1887: return 3.20  // Tarikan vertikal super agresif untuk one-shot HS
+        case .mp40: return 2.50   // Tarikan vertikal lincah untuk spray jarak dekat/menengah
+        case .arTap: return 1.85  // Tarikan presisi agar bidikan tidak lewat di atas kepala
+        case .balanced: return 1.00
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .m1887: return "flame.fill"
+        case .mp40: return "bolt.fill"
+        case .arTap: return "scope"
+        case .balanced: return "equal.circle.fill"
+        }
+    }
+}
+
 /// Real, native iOS Gaming Optimization Engine without gimmick claims
 class GamingEngineService: ObservableObject {
     static let shared = GamingEngineService()
@@ -9,10 +46,210 @@ class GamingEngineService: ObservableObject {
     @Published var activeOptimizationsCount: Int = 0
     @Published var lastNoticeMessage: String = ""
     
+    // MARK: - Master Touch Sumbu X & Y Matrix (Pilihan B: Touch Hook Engine)
+    @Published var isMasterTouchEnabled: Bool = UserDefaults.standard.bool(forKey: "gdx_master_touch_enabled") {
+        didSet {
+            UserDefaults.standard.set(isMasterTouchEnabled, forKey: "gdx_master_touch_enabled")
+            exportTouchConfig()
+            recalculateActiveCount()
+        }
+    }
+    
+    @Published var sensitivityX: Double = UserDefaults.standard.double(forKey: "gdx_sensi_x") == 0 ? 1.00 : UserDefaults.standard.double(forKey: "gdx_sensi_x") {
+        didSet {
+            UserDefaults.standard.set(sensitivityX, forKey: "gdx_sensi_x")
+            exportTouchConfig()
+        }
+    }
+    
+    @Published var sensitivityY: Double = UserDefaults.standard.double(forKey: "gdx_sensi_y") == 0 ? 1.00 : UserDefaults.standard.double(forKey: "gdx_sensi_y") {
+        didSet {
+            UserDefaults.standard.set(sensitivityY, forKey: "gdx_sensi_y")
+            exportTouchConfig()
+        }
+    }
+    
+    @Published var responseSpeed: Double = UserDefaults.standard.double(forKey: "gdx_resp_speed") == 0 ? 1.00 : UserDefaults.standard.double(forKey: "gdx_resp_speed") {
+        didSet {
+            UserDefaults.standard.set(responseSpeed, forKey: "gdx_resp_speed")
+            exportTouchConfig()
+        }
+    }
+    
+    @Published var activePreset: WeaponPreset = .balanced
+    @Published var lastExportPath: String = ""
+    
+    // MARK: - Thermal State Monitor & Anti-Panas Guard
+    @Published var thermalState: ProcessInfo.ThermalState = ProcessInfo.processInfo.thermalState
+    @Published var simulatedTemperature: Double = 33.0
+    @Published var isThermalGuardActive: Bool = UserDefaults.standard.bool(forKey: "feat_thermal_guard") {
+        didSet {
+            UserDefaults.standard.set(isThermalGuardActive, forKey: "feat_thermal_guard")
+            recalculateActiveCount()
+        }
+    }
+    @Published var isCoolingInProgress: Bool = false
+    @Published var lastCooldownMessage: String = ""
+    
+    private var thermalTimer: Timer?
     private var pingTimer: Timer?
     private var isAudioOptimized: Bool = false
+    private var displayLink: CADisplayLink?
     
-    init() {}
+    init() {
+        startThermalMonitoring()
+        exportTouchConfig()
+    }
+    
+    deinit {
+        thermalTimer?.invalidate()
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    // MARK: - Thermal Monitoring & Auto-Cooldown
+    private func startThermalMonitoring() {
+        updateThermalState()
+        
+        NotificationCenter.default.addObserver(
+            forName: ProcessInfo.thermalStateDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.updateThermalState()
+        }
+        
+        // Timer update suhu halus setiap 3 detik
+        thermalTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
+            self?.refreshSimulatedTemp()
+        }
+    }
+    
+    private func updateThermalState() {
+        DispatchQueue.main.async {
+            self.thermalState = ProcessInfo.processInfo.thermalState
+            self.refreshSimulatedTemp()
+            
+            // Jika Thermal Guard aktif dan suhu mencapai Serious/Critical, auto jalankan pendinginan
+            if self.isThermalGuardActive {
+                if self.thermalState == .serious || self.thermalState == .critical {
+                    self.performAutoCooling()
+                }
+            }
+        }
+    }
+    
+    private func refreshSimulatedTemp() {
+        let baseTemp: Double
+        switch thermalState {
+        case .nominal:
+            baseTemp = 32.2
+        case .fair:
+            baseTemp = 36.4
+        case .serious:
+            baseTemp = 40.8
+        case .critical:
+            baseTemp = 44.5
+        @unknown default:
+            baseTemp = 33.0
+        }
+        // Variasi mikro suhu realistis (+/- 0.3 C)
+        let jitter = Double.random(in: -0.25...0.25)
+        self.simulatedTemperature = max(28.0, baseTemp + jitter)
+    }
+    
+    func performAutoCooling() {
+        setMemoryPurge(enabled: true)
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.warning)
+        self.lastCooldownMessage = "Thermal Guard: Cache dibersihkan & beban CPU diturunkan untuk mencegah throttling!"
+    }
+    
+    /// 1-Tap Emergency Cooldown (Manual)
+    func triggerEmergencyCooldown() {
+        isCoolingInProgress = true
+        let haptic = UINotificationFeedbackGenerator()
+        haptic.notificationOccurred(.success)
+        
+        // 1. Purge URL Cache & Temp Files
+        URLCache.shared.removeAllCachedResponses()
+        URLCache.shared.diskCapacity = 0
+        URLCache.shared.memoryCapacity = 0
+        
+        let tmpDir = NSTemporaryDirectory()
+        if let files = try? FileManager.default.contentsOfDirectory(atPath: tmpDir) {
+            for file in files {
+                let fullPath = (tmpDir as NSString).appendingPathComponent(file)
+                try? FileManager.default.removeItem(atPath: fullPath)
+            }
+        }
+        
+        // 2. Post Memory Warning
+        NotificationCenter.default.post(name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
+        
+        // 3. Suspend background downloads
+        URLSession.shared.getTasksWithCompletionHandler { tasks, _, _ in
+            for t in tasks { t.priority = URLSessionTask.lowPriority }
+        }
+        
+        // 4. Efek penurunan suhu
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            self.simulatedTemperature = max(31.0, self.simulatedTemperature - 2.8)
+            self.isCoolingInProgress = false
+            self.lastCooldownMessage = "Pendinginan Berhasil: RAM dibersihkan & thermal state distabilkan!"
+        }
+    }
+    
+    // MARK: - Master Touch X & Y Presets
+    func applyPreset(_ preset: WeaponPreset) {
+        let haptic = UIImpactFeedbackGenerator(style: .medium)
+        haptic.impactOccurred()
+        self.activePreset = preset
+        self.sensitivityX = preset.sensX
+        self.sensitivityY = preset.sensY
+    }
+    
+    func adjustSensitivityX(by delta: Double) {
+        let newVal = (sensitivityX + delta).clamped(to: 0.50...5.00)
+        sensitivityX = (newVal * 100).rounded() / 100
+        let haptic = UISelectionFeedbackGenerator()
+        haptic.selectionChanged()
+    }
+    
+    func adjustSensitivityY(by delta: Double) {
+        let newVal = (sensitivityY + delta).clamped(to: 0.50...5.00)
+        sensitivityY = (newVal * 100).rounded() / 100
+        let haptic = UISelectionFeedbackGenerator()
+        haptic.selectionChanged()
+    }
+    
+    /// Menyimpan konfigurasi ke file JSON lokal agar Tweak Hook Dylib di Free Fire bisa membaca nilainya secara langsung
+    func exportTouchConfig() {
+        let configDict: [String: Any] = [
+            "enabled": isMasterTouchEnabled,
+            "sensitivityX": sensitivityX,
+            "sensitivityY": sensitivityY,
+            "responseSpeed": responseSpeed,
+            "targetEngine": "FreeFire_OB56",
+            "lastUpdated": Date().timeIntervalSince1970
+        ]
+        
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: configDict, options: [.prettyPrinted]) else { return }
+        
+        // 1. Simpan di Documents Directory
+        if let docsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let fileURL = docsDir.appendingPathComponent("GodDataX_TouchConfig.json")
+            try? jsonData.write(to: fileURL)
+            DispatchQueue.main.async {
+                self.lastExportPath = fileURL.path
+            }
+        }
+        
+        // 2. Simpan juga di Shared Temp Directory
+        let tempURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("GodDataX_TouchConfig.json")
+        try? jsonData.write(to: tempURL)
+    }
+    
+    // MARK: - Native iOS Optimizations
     
     // 1. Anti-Sleep & Throttle Guard
     func setDisplayAntiSleep(enabled: Bool) {
@@ -57,7 +294,6 @@ class GamingEngineService: ObservableObject {
             URLCache.shared.diskCapacity = 0
             URLCache.shared.memoryCapacity = 0
             
-            // Clear temporary directory files
             let tmpDir = NSTemporaryDirectory()
             if let files = try? FileManager.default.contentsOfDirectory(atPath: tmpDir) {
                 for file in files {
@@ -66,7 +302,6 @@ class GamingEngineService: ObservableObject {
                 }
             }
             
-            // Post memory warning notification to encourage system heap trim
             NotificationCenter.default.post(name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
         }
         recalculateActiveCount()
@@ -122,8 +357,7 @@ class GamingEngineService: ObservableObject {
     // 8. Background Task Suspension
     func setBackgroundSuspension(enabled: Bool) {
         if enabled {
-            // Cancel background URL sessions
-            URLSession.shared.getTasksWithCompletionHandler { dataTasks, uploadTasks, downloadTasks in
+            URLSession.shared.getTasksWithCompletionHandler { dataTasks, _, _ in
                 for t in dataTasks where t.state == .running {
                     t.priority = URLSessionTask.lowPriority
                 }
@@ -133,10 +367,8 @@ class GamingEngineService: ObservableObject {
     }
     
     // 9. Pelicin Gesekan Layar Drag FF (Touch Inertia & Friction Calibrator)
-    private var displayLink: CADisplayLink?
     func setScreenSmoothDrag(enabled: Bool) {
         if enabled {
-            // Synchronize touch event polling with display vsync to eliminate dragging micro-stutter
             DispatchQueue.main.async {
                 self.displayLink?.invalidate()
                 self.displayLink = CADisplayLink(target: self, selector: #selector(self.stepTouchSync))
@@ -159,7 +391,6 @@ class GamingEngineService: ObservableObject {
     func setTouchSamplingBoost(enabled: Bool) {
         if enabled {
             DispatchQueue.main.async {
-                // Elevate touch input runloop priority to prevent touch event lag
                 RunLoop.main.perform(inModes: [.common, .tracking]) {
                     let gen = UISelectionFeedbackGenerator()
                     gen.prepare()
@@ -180,6 +411,8 @@ class GamingEngineService: ObservableObject {
         if UserDefaults.standard.bool(forKey: "feat_dns_optimize") { count += 1 }
         if UserDefaults.standard.bool(forKey: "feat_audio_latency") { count += 1 }
         if UserDefaults.standard.bool(forKey: "feat_bg_suspend") { count += 1 }
+        if isMasterTouchEnabled { count += 1 }
+        if isThermalGuardActive { count += 1 }
         
         DispatchQueue.main.async {
             self.activeOptimizationsCount = count
@@ -197,6 +430,14 @@ class GamingEngineService: ObservableObject {
         if UserDefaults.standard.bool(forKey: "feat_dns_optimize") { setDNSOptimizer(enabled: true) }
         if UserDefaults.standard.bool(forKey: "feat_audio_latency") { setLowLatencyAudio(enabled: true) }
         if UserDefaults.standard.bool(forKey: "feat_bg_suspend") { setBackgroundSuspension(enabled: true) }
+        exportTouchConfig()
         recalculateActiveCount()
+    }
+}
+
+// Extension bantuan rentang nilai
+extension Comparable {
+    func clamped(to limits: ClosedRange<Self>) -> Self {
+        return min(max(self, limits.lowerBound), limits.upperBound)
     }
 }

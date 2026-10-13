@@ -17,11 +17,34 @@ struct FeaturesView: View {
     
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 20) {
+            VStack(spacing: 22) {
                 
-                // Group 1: Optimasi Sentuhan & Layar Free Fire
+                // Section 1: GDX Touch Matrix (Slider Sumbu X & Y + Drag Test Pad)
                 VStack(alignment: .leading, spacing: 10) {
-                    Text(lang.text(id: "Fitur Utama", en: "Main Features"))
+                    Text(lang.text(id: "Sensitivitas & Kelicinan Layar (Sumbu X & Y)", en: "Screen Sensitivity & Touch Matrix (X & Y)"))
+                        .font(.rajdhani(16, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 4)
+                    
+                    TouchMatrixCard()
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
+                
+                // Section 2: GDX Thermal Shield & Anti-Panas
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(lang.text(id: "Thermal Guard & Anti-Panas iPhone", en: "Thermal Guard & Overheat Protection"))
+                        .font(.rajdhani(16, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 4)
+                    
+                    ThermalGuardCard()
+                }
+                .padding(.horizontal, 20)
+                
+                // Section 3: Optimasi Sentuhan & Layar Free Fire
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(lang.text(id: "Fitur Optimasi Sistem", en: "System Engine Optimizations"))
                         .font(.rajdhani(16, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 4)
@@ -29,7 +52,7 @@ struct FeaturesView: View {
                     GlassCard(borderColor: Color(hex: "FF1E27").opacity(0.3), cornerRadius: 18) {
                         VStack(spacing: 12) {
                             CustomToggleRow(
-                                title: "GDX Drag",
+                                title: "GDX Drag Inertia",
                                 subtitle: lang.text(id: "Kalibrasi inersia digitizer sentuh agar drag shot licin dan tidak kesat", en: "Calibrate digitizer inertia for smoother drag shots without friction"),
                                 isOn: $smoothDrag,
                                 onChange: { val in
@@ -84,11 +107,10 @@ struct FeaturesView: View {
                     }
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 16)
                 
-                // Group 2: Konektivitas & Audio Game
+                // Section 4: Konektivitas & Audio Game
                 VStack(alignment: .leading, spacing: 10) {
-                    Text(lang.text(id: "Fitur Tambahan", en: "Additional Features"))
+                    Text(lang.text(id: "Konektivitas & Audio Game", en: "Connectivity & Gaming Audio"))
                         .font(.rajdhani(16, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 4)

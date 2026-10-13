@@ -26,6 +26,8 @@
 		AA010017 /* Rajdhani-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BB010018 /* Rajdhani-Regular.ttf */; };
 		AA010018 /* LanguageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010019 /* LanguageManager.swift */; };
 		AA010019 /* GamingEngineService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010020 /* GamingEngineService.swift */; };
+		AA010020 /* TouchMatrixCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010021 /* TouchMatrixCard.swift */; };
+		AA010021 /* ThermalGuardCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010022 /* ThermalGuardCard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +52,8 @@
 		BB010018 /* Rajdhani-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Fonts/Rajdhani-Regular.ttf; sourceTree = "<group>"; };
 		BB010019 /* LanguageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageManager.swift; sourceTree = "<group>"; };
 		BB010020 /* GamingEngineService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamingEngineService.swift; sourceTree = "<group>"; };
+		BB010021 /* TouchMatrixCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchMatrixCard.swift; sourceTree = "<group>"; };
+		BB010022 /* ThermalGuardCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermalGuardCard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -150,6 +154,8 @@
 			children = (
 				BB010005 /* DynamicIslandBanner.swift */,
 				BB010006 /* GlassCard.swift */,
+				BB010021 /* TouchMatrixCard.swift */,
+				BB010022 /* ThermalGuardCard.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -241,6 +247,8 @@
 				AA010013 /* FontManager.swift in Sources */,
 				AA010018 /* LanguageManager.swift in Sources */,
 				AA010019 /* GamingEngineService.swift in Sources */,
+				AA010020 /* TouchMatrixCard.swift in Sources */,
+				AA010021 /* ThermalGuardCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
