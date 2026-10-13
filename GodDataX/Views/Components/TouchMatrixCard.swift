@@ -66,37 +66,78 @@ struct TouchMatrixCard: View {
                 
                 Divider().background(Color.white.opacity(0.08))
                 
-                // 4. Sinkronisasi Konfigurasi
-                HStack {
-                    Image(systemName: "checkmark.seal.fill")
-                        .foregroundColor(Color(hex: "FF1E27"))
-                        .font(.system(size: 13))
-                    
-                    Text(lang.text(id: "Sinkronisasi Konfigurasi Touch Engine", en: "Touch Engine Config Synchronization"))
-                        .font(.rajdhani(12, weight: .bold))
-                        .foregroundColor(.white.opacity(0.85))
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        engine.exportTouchConfig()
-                        let haptic = UIImpactFeedbackGenerator(style: .medium)
-                        haptic.impactOccurred()
-                        withAnimation {
-                            showExportSuccess = true
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                            withAnimation {
-                                showExportSuccess = false
-                            }
-                        }
-                    }) {
-                        Text(showExportSuccess ? "TERSINKRON" : "SYNC CONFIG")
-                            .font(.rajdhani(11, weight: .bold))
+                // 4. Native Engine Direct Accelerator (100% Anti-Ban, Tanpa Dylib)
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Image(systemName: "shield.lefthalf.filled")
+                            .foregroundColor(Color(hex: "FF1E27"))
+                            .font(.system(size: 13))
+                        
+                        Text(lang.text(id: "Mode Native (100% Anti-Ban, Tanpa Dylib)", en: "Native Mode (100% Anti-Ban, No Dylib)"))
+                            .font(.rajdhani(13, weight: .bold))
                             .foregroundColor(.white)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 7)
-                            .background(Capsule().fill(Color(hex: "FF1E27")))
+                        
+                        Spacer()
+                        
+                        Text(engine.isMasterTouchEnabled ? "AKTIF" : "NONAKTIF")
+                            .font(.rajdhani(11, weight: .bold))
+                            .foregroundColor(engine.isMasterTouchEnabled ? Color(hex: "FF1E27") : Color.gray)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(
+                                Capsule().fill(engine.isMasterTouchEnabled ? Color(hex: "FF1E27").opacity(0.15) : Color.white.opacity(0.05))
+                            )
+                    }
+                    
+                    Text(lang.text(id: "Sens X & Y langsung mempercepat sampling layar ProMotion 120Hz dan memprioritaskan antrean sentuh hardware tanpa menyentuh file game.", en: "Sens X & Y directly accelerate ProMotion 120Hz screen sampling and prioritize hardware touch queues without touching game files."))
+                        .font(.rajdhani(11, weight: .medium))
+                        .foregroundColor(Color.gray.opacity(0.85))
+                        .lineSpacing(2)
+                    
+                    HStack(spacing: 10) {
+                        Button(action: {
+                            engine.openSystemTouchSettings()
+                        }) {
+                            HStack(spacing: 5) {
+                                Image(systemName: "gearshape.fill")
+                                    .font(.system(size: 10))
+                                Text("SETTING SENTUHAN IOS")
+                                    .font(.rajdhani(11, weight: .bold))
+                            }
+                            .foregroundColor(.white.opacity(0.9))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.08))
+                            )
+                        }
+                        
+                        Button(action: {
+                            engine.applyNativeTouchBoost()
+                            withAnimation {
+                                showExportSuccess = true
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                                withAnimation {
+                                    showExportSuccess = false
+                                }
+                            }
+                        }) {
+                            HStack(spacing: 5) {
+                                Image(systemName: showExportSuccess ? "checkmark" : "bolt.fill")
+                                    .font(.system(size: 10))
+                                Text(showExportSuccess ? "DITERAPKAN" : "TERAPKAN SISTEM")
+                                    .font(.rajdhani(11, weight: .bold))
+                            }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color(hex: "FF1E27"))
+                            )
+                        }
                     }
                 }
             }

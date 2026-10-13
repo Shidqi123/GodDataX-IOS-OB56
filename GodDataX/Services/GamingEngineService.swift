@@ -51,6 +51,7 @@ class GamingEngineService: ObservableObject {
         didSet {
             UserDefaults.standard.set(isMasterTouchEnabled, forKey: "gdx_master_touch_enabled")
             exportTouchConfig()
+            applyNativeTouchBoost()
             recalculateActiveCount()
         }
     }
@@ -81,6 +82,7 @@ class GamingEngineService: ObservableObject {
             UserDefaults.standard.set(sensXLevel, forKey: "gdx_sens_x_level")
             sensitivityX = 1.0 + Double(sensXLevel - 1) * (4.0 / 6.0)
             exportTouchConfig()
+            if isMasterTouchEnabled { applyNativeTouchBoost() }
         }
     }
     
@@ -89,6 +91,7 @@ class GamingEngineService: ObservableObject {
             UserDefaults.standard.set(sensYLevel, forKey: "gdx_sens_y_level")
             sensitivityY = 1.0 + Double(sensYLevel - 1) * (4.0 / 6.0)
             exportTouchConfig()
+            if isMasterTouchEnabled { applyNativeTouchBoost() }
         }
     }
     
@@ -423,6 +426,62 @@ class GamingEngineService: ObservableObject {
             }
         }
         recalculateActiveCount()
+    }
+    
+    // MARK: - Native Direct Touch Booster (100% Anti-Ban, Tanpa Dylib)
+    func applyNativeTouchBoost() {
+        guard isMasterTouchEnabled else {
+            stopNativeTouchBoost()
+            return
+        }
+        
+        // 1. Sinkronisasi CADisplayLink ProMotion 120Hz
+        DispatchQueue.main.async {
+            self.displayLink?.invalidate()
+            self.displayLink = CADisplayLink(target: self, selector: #selector(self.stepTouchSync))
+            if #available(iOS 15.0, *) {
+                self.displayLink?.preferredFrameRateRange = CAFrameRateRange(minimum: 60, maximum: 120, preferred: 120)
+            }
+            self.displayLink?.add(to: .main, forMode: .common)
+        }
+        
+        // 2. Prioritas Thread Ekstrem (User Interactive QoS)
+        DispatchQueue.global(qos: .userInteractive).async {
+            pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0)
+            Thread.setThreadPriority(1.0)
+        }
+        
+        // 3. Audio Session Low-Latency untuk menjaga proses background tetap aktif
+        setLowLatencyAudio(enabled: true)
+        
+        // 4. Haptic Feedback konfirmasi
+        let gen = UIImpactFeedbackGenerator(style: .rigid)
+        gen.prepare()
+        gen.impactOccurred()
+    }
+    
+    func stopNativeTouchBoost() {
+        DispatchQueue.main.async {
+            self.displayLink?.invalidate()
+            self.displayLink = nil
+        }
+    }
+    
+    func openSystemTouchSettings() {
+        let urlStrings = [
+            "App-prefs:ACCESSIBILITY",
+            "App-prefs:root=ACCESSIBILITY&path=TOUCH_REACTION",
+            "prefs:root=ACCESSIBILITY"
+        ]
+        for urlStr in urlStrings {
+            if let url = URL(string: urlStr), UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                return
+            }
+        }
+        if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(settingsUrl, options: [:], completionHandler: nil)
+        }
     }
     
     private func recalculateActiveCount() {
