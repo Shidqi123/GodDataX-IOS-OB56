@@ -125,7 +125,7 @@ struct ThermalGuardCard: View {
                 // 3. Toggle Auto-Thermal Guard & Tombol Dinginkan Sekarang
                 VStack(spacing: 12) {
                     CustomToggleRow(
-                        title: lang.text(id: "Auto Thermal Guard (Cegah Layar Redup)", en: "Auto Thermal Guard (Prevent Dimming)"),
+                        title: "Auto Thermal Guard",
                         subtitle: lang.text(id: "Otomatis pangkas alokasi cache saat iPhone mulai memanas", en: "Automatically trims cache allocation when iPhone gets warm"),
                         isOn: $engine.isThermalGuardActive
                     )

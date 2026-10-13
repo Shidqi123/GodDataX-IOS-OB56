@@ -4,17 +4,13 @@ struct TouchMatrixCard: View {
     @ObservedObject var engine = GamingEngineService.shared
     @ObservedObject var lang = LanguageManager.shared
     
-    // State untuk Interactive Drag Test Box
-    @State private var dragCurrentOffset: CGSize = .zero
-    @State private var isDragging: Bool = false
-    @State private var hasHitHeadshotZone: Bool = false
     @State private var showExportSuccess: Bool = false
     
     var body: some View {
-        GlassCard(borderColor: Color(hex: "FF1E27").opacity(0.4), cornerRadius: 18) {
-            VStack(alignment: .leading, spacing: 18) {
+        GlassCard(borderColor: Color(hex: "FF1E27").opacity(0.35), cornerRadius: 18) {
+            VStack(alignment: .leading, spacing: 20) {
                 
-                // 1. Header Card GodDataX Red Theme
+                // 1. Header Card: GDX Touch Matrix
                 HStack(alignment: .center) {
                     VStack(alignment: .leading, spacing: 3) {
                         HStack(spacing: 8) {
@@ -22,7 +18,7 @@ struct TouchMatrixCard: View {
                                 .fill(Color(hex: "FF1E27"))
                                 .frame(width: 4, height: 16)
                             
-                            Text("GDX TOUCH MATRIX")
+                            Text("GDX Touch Matrix")
                                 .font(.rajdhani(18, weight: .bold))
                                 .foregroundColor(.white)
                         }
@@ -42,241 +38,35 @@ struct TouchMatrixCard: View {
                 
                 Divider().background(Color.white.opacity(0.08))
                 
-                // 2. Preset Senjata Cepat (GodDataX Red Theme)
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(lang.text(id: "PRESET SENJATA", en: "WEAPON PRESETS"))
-                        .font(.rajdhani(11, weight: .bold))
-                        .foregroundColor(Color.gray.opacity(0.75))
-                        .tracking(1.2)
-                    
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(WeaponPreset.allCases) { preset in
-                                Button(action: {
-                                    engine.applyPreset(preset)
-                                }) {
-                                    HStack(spacing: 6) {
-                                        Image(systemName: preset.icon)
-                                            .font(.system(size: 11, weight: .bold))
-                                        Text(preset.rawValue)
-                                            .font(.rajdhani(13, weight: .bold))
-                                    }
-                                    .padding(.vertical, 7)
-                                    .padding(.horizontal, 12)
-                                    .background(
-                                        Capsule()
-                                            .fill(engine.activePreset == preset ? Color(hex: "FF1E27") : Color(hex: "171821"))
-                                    )
-                                    .overlay(
-                                        Capsule()
-                                            .stroke(engine.activePreset == preset ? Color(hex: "FF1E27") : Color.white.opacity(0.1), lineWidth: 1)
-                                    )
-                                    .foregroundColor(.white)
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                            }
-                        }
+                // 2. Slider Sens X (Sesuai Desain Gambar 2)
+                CustomLevelSlider(
+                    title: "Sens X",
+                    level: $engine.sensXLevel,
+                    minLevel: 1,
+                    maxLevel: 7,
+                    isEnabled: engine.isMasterTouchEnabled,
+                    onChange: { val in
+                        engine.updateSensXLevel(val)
                     }
-                }
+                )
                 
-                // 3. Slider Sumbu X (Horizontal Look)
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("SUMBU X • HORIZONTAL LOOK")
-                                .font(.rajdhani(13, weight: .bold))
-                                .foregroundColor(.white)
-                            Text(lang.text(id: "Kelincahan putaran layar dan geser horizontal", en: "Horizontal look and camera agility"))
-                                .font(.rajdhani(11, weight: .medium))
-                                .foregroundColor(Color.gray.opacity(0.75))
-                        }
-                        
-                        Spacer()
-                        
-                        HStack(spacing: 6) {
-                            Button(action: { engine.adjustSensitivityX(by: -0.05) }) {
-                                Image(systemName: "minus")
-                                    .font(.system(size: 11, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .frame(width: 24, height: 24)
-                                    .background(Color(hex: "232630"))
-                                    .clipShape(Circle())
-                            }
-                            
-                            Text(String(format: "%.2fx", engine.sensitivityX))
-                                .font(.rajdhani(16, weight: .bold))
-                                .foregroundColor(Color(hex: "FF1E27"))
-                                .frame(minWidth: 46)
-                            
-                            Button(action: { engine.adjustSensitivityX(by: 0.05) }) {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 11, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .frame(width: 24, height: 24)
-                                    .background(Color(hex: "232630"))
-                                    .clipShape(Circle())
-                            }
-                        }
-                    }
-                    
-                    Slider(
-                        value: $engine.sensitivityX,
-                        in: 0.50...5.00,
-                        step: 0.05
-                    )
-                    .accentColor(Color(hex: "FF1E27"))
-                    .disabled(!engine.isMasterTouchEnabled)
-                    .opacity(engine.isMasterTouchEnabled ? 1.0 : 0.45)
-                }
-                .padding(12)
-                .background(RoundedRectangle(cornerRadius: 12).fill(Color(hex: "171821")))
+                Divider().background(Color.white.opacity(0.06))
                 
-                // 4. Slider Sumbu Y (Vertical Drag Headshot)
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("SUMBU Y • VERTICAL DRAG SHOT")
-                                .font(.rajdhani(13, weight: .bold))
-                                .foregroundColor(.white)
-                            Text(lang.text(id: "Kelicinan tarikan vertikal khusus headshot", en: "Vertical drag flick multiplier for headshots"))
-                                .font(.rajdhani(11, weight: .medium))
-                                .foregroundColor(Color.gray.opacity(0.75))
-                        }
-                        
-                        Spacer()
-                        
-                        HStack(spacing: 6) {
-                            Button(action: { engine.adjustSensitivityY(by: -0.05) }) {
-                                Image(systemName: "minus")
-                                    .font(.system(size: 11, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .frame(width: 24, height: 24)
-                                    .background(Color(hex: "232630"))
-                                    .clipShape(Circle())
-                            }
-                            
-                            Text(String(format: "%.2fx", engine.sensitivityY))
-                                .font(.rajdhani(16, weight: .bold))
-                                .foregroundColor(Color(hex: "FF1E27"))
-                                .frame(minWidth: 46)
-                            
-                            Button(action: { engine.adjustSensitivityY(by: 0.05) }) {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 11, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .frame(width: 24, height: 24)
-                                    .background(Color(hex: "232630"))
-                                    .clipShape(Circle())
-                            }
-                        }
+                // 3. Slider Sens Y (Sesuai Desain Gambar 2)
+                CustomLevelSlider(
+                    title: "Sens Y",
+                    level: $engine.sensYLevel,
+                    minLevel: 1,
+                    maxLevel: 7,
+                    isEnabled: engine.isMasterTouchEnabled,
+                    onChange: { val in
+                        engine.updateSensYLevel(val)
                     }
-                    
-                    Slider(
-                        value: $engine.sensitivityY,
-                        in: 0.50...5.00,
-                        step: 0.05
-                    )
-                    .accentColor(Color(hex: "FF1E27"))
-                    .disabled(!engine.isMasterTouchEnabled)
-                    .opacity(engine.isMasterTouchEnabled ? 1.0 : 0.45)
-                }
-                .padding(12)
-                .background(RoundedRectangle(cornerRadius: 12).fill(Color(hex: "171821")))
+                )
                 
-                // 5. Arena Uji Tarikan Drag (Test Pad)
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text(lang.text(id: "ARENA UJI TARIKAN DRAG", en: "DRAG FLICK TEST PAD"))
-                            .font(.rajdhani(12, weight: .bold))
-                            .foregroundColor(Color.gray.opacity(0.85))
-                        
-                        Spacer()
-                        
-                        if hasHitHeadshotZone {
-                            Text("TARGET HEADSHOT TERCAPAI")
-                                .font(.rajdhani(12, weight: .bold))
-                                .foregroundColor(Color(hex: "FF1E27"))
-                                .transition(.opacity)
-                        } else {
-                            Text("Tarik Tombol Ke Atas")
-                                .font(.rajdhani(11, weight: .medium))
-                                .foregroundColor(Color.gray.opacity(0.6))
-                        }
-                    }
-                    
-                    ZStack {
-                        // Background Box
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color(hex: "0D0E12"))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(hasHitHeadshotZone ? Color(hex: "FF1E27") : Color.white.opacity(0.08), lineWidth: 1)
-                            )
-                        
-                        // Headshot Target Zone di bagian atas
-                        VStack {
-                            HStack {
-                                Spacer()
-                                Capsule()
-                                    .fill(Color(hex: "FF1E27").opacity(hasHitHeadshotZone ? 0.35 : 0.15))
-                                    .frame(width: 140, height: 22)
-                                    .overlay(
-                                        Text("HEADSHOT ZONE")
-                                            .font(.rajdhani(10, weight: .bold))
-                                            .foregroundColor(Color(hex: "FF1E27"))
-                                    )
-                                Spacer()
-                            }
-                            .padding(.top, 8)
-                            Spacer()
-                        }
-                        
-                        // Titik Drag Visualizer
-                        if isDragging {
-                            Circle()
-                                .fill(Color(hex: "FF1E27"))
-                                .frame(width: 26, height: 26)
-                                .shadow(color: Color(hex: "FF1E27"), radius: 6)
-                                .offset(x: dragCurrentOffset.width, y: dragCurrentOffset.height)
-                        } else {
-                            VStack(spacing: 4) {
-                                Image(systemName: "hand.draw.fill")
-                                    .font(.system(size: 18))
-                                    .foregroundColor(Color.white.opacity(0.35))
-                                Text(lang.text(id: "Tahan dan geser ke atas untuk menguji tarikan", en: "Touch and flick upward to test drag"))
-                                    .font(.rajdhani(12, weight: .medium))
-                                    .foregroundColor(Color.white.opacity(0.4))
-                            }
-                        }
-                    }
-                    .frame(height: 110)
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { value in
-                                isDragging = true
-                                let scaledX = value.translation.width * CGFloat(engine.sensitivityX * 0.4)
-                                let scaledY = value.translation.height * CGFloat(engine.sensitivityY * 0.4)
-                                dragCurrentOffset = CGSize(width: scaledX, height: scaledY)
-                                
-                                if scaledY < -30 && !hasHitHeadshotZone {
-                                    hasHitHeadshotZone = true
-                                    let haptic = UINotificationFeedbackGenerator()
-                                    haptic.notificationOccurred(.success)
-                                }
-                            }
-                            .onEnded { _ in
-                                isDragging = false
-                                dragCurrentOffset = .zero
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-                                    withAnimation {
-                                        hasHitHeadshotZone = false
-                                    }
-                                }
-                            }
-                    )
-                }
+                Divider().background(Color.white.opacity(0.08))
                 
-                // 6. Sinkronisasi Konfigurasi
+                // 4. Sinkronisasi Konfigurasi
                 HStack {
                     Image(systemName: "checkmark.seal.fill")
                         .foregroundColor(Color(hex: "FF1E27"))
@@ -304,13 +94,119 @@ struct TouchMatrixCard: View {
                         Text(showExportSuccess ? "TERSINKRON" : "SYNC CONFIG")
                             .font(.rajdhani(11, weight: .bold))
                             .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 7)
                             .background(Capsule().fill(Color(hex: "FF1E27")))
                     }
                 }
-                .padding(.top, 2)
             }
+        }
+    }
+}
+
+/// Custom Slider persis sesuai Gambar Referensi 2:
+/// - Judul di kiri (Sens X / Sens Y)
+/// - Angka "Level: X" warna merah di kanan
+/// - Active track merah & Inactive track abu-abu
+/// - Thumb berbentuk Rounded Capsule Merah vertikal
+/// - Angka 1, 4, 7 di bawah slider
+struct CustomLevelSlider: View {
+    let title: String
+    @Binding var level: Int
+    var minLevel: Int = 1
+    var maxLevel: Int = 7
+    var isEnabled: Bool = true
+    var onChange: ((Int) -> Void)? = nil
+    
+    @State private var dragPositionX: CGFloat? = nil
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            
+            // Baris Atas: Label Kiri & Level Kanan
+            HStack {
+                Text(title)
+                    .font(.rajdhani(16, weight: .bold))
+                    .foregroundColor(.white)
+                
+                Spacer()
+                
+                Text("Level: \(level)")
+                    .font(.rajdhani(16, weight: .bold))
+                    .foregroundColor(Color(hex: "D3162A"))
+            }
+            
+            // Slider Track & Thumb (Desain Gambar 2)
+            GeometryReader { geometry in
+                let totalWidth = geometry.size.width
+                let thumbWidth: CGFloat = 10
+                let thumbHeight: CGFloat = 26
+                let trackHeight: CGFloat = 8
+                
+                let progress = CGFloat(level - minLevel) / CGFloat(maxLevel - minLevel)
+                let activeWidth = progress * (totalWidth - thumbWidth)
+                
+                ZStack(alignment: .leading) {
+                    
+                    // Inactive Track (Abu-abu Gelap)
+                    Capsule()
+                        .fill(Color(hex: "282C34"))
+                        .frame(height: trackHeight)
+                        .frame(maxWidth: .infinity)
+                    
+                    // Active Track (Merah GodDataX)
+                    Capsule()
+                        .fill(Color(hex: "D3162A"))
+                        .frame(width: max(trackHeight, activeWidth + (thumbWidth / 2)), height: trackHeight)
+                    
+                    // Thumb: Rounded Capsule Merah Vertikal (Gambar 2)
+                    Capsule()
+                        .fill(Color(hex: "D3162A"))
+                        .frame(width: thumbWidth, height: thumbHeight)
+                        .offset(x: activeWidth)
+                        .shadow(color: Color(hex: "D3162A").opacity(0.4), radius: 3)
+                }
+                .frame(height: thumbHeight)
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { gesture in
+                            guard isEnabled else { return }
+                            let touchX = max(0, min(gesture.location.x, totalWidth - thumbWidth))
+                            let ratio = touchX / (totalWidth - thumbWidth)
+                            let newLevel = minLevel + Int(round(ratio * CGFloat(maxLevel - minLevel)))
+                            let clamped = max(minLevel, min(newLevel, maxLevel))
+                            if clamped != level {
+                                level = clamped
+                                let haptic = UISelectionFeedbackGenerator()
+                                haptic.selectionChanged()
+                                onChange?(clamped)
+                            }
+                        }
+                )
+            }
+            .frame(height: 26)
+            .opacity(isEnabled ? 1.0 : 0.45)
+            
+            // Baris Bawah: Angka 1, 4, 7
+            HStack {
+                Text("\(minLevel)")
+                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .foregroundColor(Color.gray.opacity(0.6))
+                
+                Spacer()
+                
+                Text("\((minLevel + maxLevel) / 2)")
+                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .foregroundColor(Color.gray.opacity(0.6))
+                
+                Spacer()
+                
+                Text("\(maxLevel)")
+                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .foregroundColor(Color.gray.opacity(0.6))
+            }
+            .padding(.horizontal, 2)
         }
     }
 }

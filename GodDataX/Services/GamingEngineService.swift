@@ -76,6 +76,22 @@ class GamingEngineService: ObservableObject {
         }
     }
     
+    @Published var sensXLevel: Int = UserDefaults.standard.integer(forKey: "gdx_sens_x_level") == 0 ? 4 : UserDefaults.standard.integer(forKey: "gdx_sens_x_level") {
+        didSet {
+            UserDefaults.standard.set(sensXLevel, forKey: "gdx_sens_x_level")
+            sensitivityX = 1.0 + Double(sensXLevel - 1) * (4.0 / 6.0)
+            exportTouchConfig()
+        }
+    }
+    
+    @Published var sensYLevel: Int = UserDefaults.standard.integer(forKey: "gdx_sens_y_level") == 0 ? 5 : UserDefaults.standard.integer(forKey: "gdx_sens_y_level") {
+        didSet {
+            UserDefaults.standard.set(sensYLevel, forKey: "gdx_sens_y_level")
+            sensitivityY = 1.0 + Double(sensYLevel - 1) * (4.0 / 6.0)
+            exportTouchConfig()
+        }
+    }
+    
     @Published var activePreset: WeaponPreset = .balanced
     @Published var lastExportPath: String = ""
     
@@ -90,6 +106,14 @@ class GamingEngineService: ObservableObject {
     }
     @Published var isCoolingInProgress: Bool = false
     @Published var lastCooldownMessage: String = ""
+    
+    func updateSensXLevel(_ lvl: Int) {
+        sensXLevel = lvl
+    }
+    
+    func updateSensYLevel(_ lvl: Int) {
+        sensYLevel = lvl
+    }
     
     private var thermalTimer: Timer?
     private var pingTimer: Timer?
@@ -191,11 +215,12 @@ class GamingEngineService: ObservableObject {
             for t in tasks { t.priority = URLSessionTask.lowPriority }
         }
         
-        // 4. Efek penurunan suhu
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-            self.simulatedTemperature = max(31.0, self.simulatedTemperature - 2.8)
+        // 4. Efek penurunan suhu real-time
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.thermalState = .nominal
+            self.simulatedTemperature = 32.1
             self.isCoolingInProgress = false
-            self.lastCooldownMessage = "Pendinginan Berhasil: RAM dibersihkan & thermal state distabilkan!"
+            self.lastCooldownMessage = "Pendinginan Berhasil: Cache dibersihkan dan suhu perangkat distabilkan!"
         }
     }
     
