@@ -28,6 +28,7 @@
 		AA010019 /* GamingEngineService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010020 /* GamingEngineService.swift */; };
 		AA010020 /* TouchMatrixCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010021 /* TouchMatrixCard.swift */; };
 		AA010021 /* ThermalGuardCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010022 /* ThermalGuardCard.swift */; };
+		AA010022 /* SecurityShield.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010023 /* SecurityShield.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +55,7 @@
 		BB010020 /* GamingEngineService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamingEngineService.swift; sourceTree = "<group>"; };
 		BB010021 /* TouchMatrixCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchMatrixCard.swift; sourceTree = "<group>"; };
 		BB010022 /* ThermalGuardCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermalGuardCard.swift; sourceTree = "<group>"; };
+		BB010023 /* SecurityShield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityShield.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +134,7 @@
 				BB010004 /* AuthService.swift */,
 				BB010019 /* LanguageManager.swift */,
 				BB010020 /* GamingEngineService.swift */,
+				BB010023 /* SecurityShield.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -249,6 +252,7 @@
 				AA010019 /* GamingEngineService.swift in Sources */,
 				AA010020 /* TouchMatrixCard.swift in Sources */,
 				AA010021 /* ThermalGuardCard.swift in Sources */,
+				AA010022 /* SecurityShield.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

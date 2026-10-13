@@ -35,8 +35,9 @@ if [ -z "$APP_PATH" ]; then
     echo "ERROR: GodDataX.app not found in build directory!"
     find build
     exit 1
-fi
 echo "Found app at: $APP_PATH"
+echo "=== Stripping debug symbols & strings ==="
+strip -r -u "$APP_PATH/GodDataX" 2>/dev/null || true
 cp -r "$APP_PATH" Payload/
 zip -qr "GodDataX_v2_OB56.ipa" Payload
 cp "GodDataX_v2_OB56.ipa" "GodDataX_OB56_v2.ipa"
@@ -58,6 +59,9 @@ cp "GodDataX_v2_OB56.ipa" "GodDataX_Build216.ipa"
 cp "GodDataX_v2_OB56.ipa" "GodDataX_Build217.ipa"
 cp "GodDataX_v2_OB56.ipa" "GodDataX_OB56_Build219.ipa"
 cp "GodDataX_v2_OB56.ipa" "GodDataX_OB56_Build220.ipa"
+cp "GodDataX_v2_OB56.ipa" "GodDataX_OB56_Build221.ipa"
+cp "GodDataX_v2_OB56.ipa" "GodDataX_OB56_Secured_v7.ipa"
+cp "GodDataX_v2_OB56.ipa" "GodDataX_Build221_Protected.ipa"
 cp "GodDataX_v2_OB56.ipa" "GodDataX_OB56_TouchMatrix_v6.ipa"
 cp "GodDataX_v2_OB56.ipa" "GodDataX_Build220_Red.ipa"
 cp "GodDataX_v2_OB56.ipa" "GodDataX_v5_OB56.ipa"

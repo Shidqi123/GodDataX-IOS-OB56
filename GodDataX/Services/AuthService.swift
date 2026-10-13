@@ -14,25 +14,29 @@ class AuthService: ObservableObject {
     @Published var isVerifying: Bool = false
     public let sessionStartTime = Date()
     
-    // Default Firebase Realtime Database URL (can be customized)
-    @AppStorage("firebase_db_url") var firebaseDatabaseURL: String = "https://goddatax-ios-default-rtdb.firebaseio.com"
+    // Encrypted Firebase Realtime Database URL (XOR 0x5A) - string tidak terbaca di binary
+    private static let encryptedDBURL: [UInt8] = [
+        50, 46, 46, 42, 41, 96, 117, 117, 61, 53, 62, 62, 59, 46, 59, 34, 119, 51, 53, 41, 119, 62, 63, 60, 59, 47, 54, 46, 119, 40, 46, 62, 56, 116, 60, 51, 40, 63, 56, 59, 41, 63, 51, 53, 116, 57, 53, 55
+    ]
     
-    // Offline pre-approved keys list for instant access & fallback
-    private let validKeys: Set<String> = [
-        "SAIKUTO",
-        "SAIFREE",
-        "TESTKEY",
-        "OBSIDIAN",
-        "PIPCOV",
-        "CLASSMAP",
-        "SAIFREE2024",
-        "VIPACCESS",
-        "LIFETIME",
-        "TEATKEY",
-        "KUT0123",
-        "OB56VIP",
-        "OB56GODDATAX",
-        "IOSVIP"
+    var firebaseDatabaseURL: String {
+        return SecurityShield.decrypt(bytes: Self.encryptedDBURL, key: 0x5A)
+    }
+    
+    // Offline pre-approved keys list (Disimpan dalam bentuk SHA-256 Hash - tidak bisa di-crack dari binary)
+    private let validKeyHashes: Set<String> = [
+        "dd317b098a4ef1b9685beaa30b26138b8a8487486243b2fa79a69b623c2b2ab9", // SAIKUTO
+        "03aff1adbf9a43955a94ff4ba558e2186d6ad238e5fd4328df2baa4ef749c8ce", // SAIFREE
+        "08eaa74f361516ef950fc2a7263d99fc2a3f624849b0a6cd3301c02f5f5db7e6", // OBSIDIAN
+        "cde2d69a8d002dc8c6d44776f5c2c114f6d0d5454c47f520fd24b27349998669", // PIPCOV
+        "44142f4822e4c64ea97cdc6881df740d25a3ee8ededd3e05e40e9ac46e9649c4", // CLASSMAP
+        "13d6e50bff60038200b200d0a0a6bb26a2f6ceb9c2ee78c44797efc4601f1645", // SAIFREE2024
+        "ad912e495db1b540788db9798fe0482b5ff88b48ba9f1de14d1f1a7e9e211823", // VIPACCESS
+        "10412dbed2b6f4b0848579d9c9e694a5dc6042b47e7c2ed3b2a698d4c8b0d9e1", // LIFETIME
+        "6f5208a8c95e88f8d94a3c139b50bd820573b31ae170ea3b09ae37f9ef4aa4fd", // KUT0123
+        "7d9267984f3abd8d69ded1ed8fa5a538a115792cd3ca32764c7833fe813b2eb1", // OB56VIP
+        "f151d30e9f55f5431942ead3929472930ca0f0f56e8e4a76b96f968c5202414f", // OB56GODDATAX
+        "3045acd5deb43a5f1e1b6203af33fadd8b1b0d94d4fa14eadbd161c4b29fac6e"  // IOSVIP
     ]
     
     private let authKeyStorage = "goddatax_saved_license"
@@ -107,6 +111,12 @@ class AuthService: ObservableObject {
     private var sessionMonitorTimer: Timer?
     
     init() {
+        // Proteksi Anti-Debugging & Anti-Tamper
+        SecurityShield.shared.enableAntiDebugging()
+        if SecurityShield.shared.isTamperDetected() {
+            exit(0)
+        }
+        
         self.hwid = getOrGenerateHWID()
         self.deviceUserId = getOrGenerateDeviceUserId()
         self.expiryDateString = AuthService.getOB57CountdownString()
@@ -359,7 +369,7 @@ class AuthService: ObservableObject {
                     self.isVerifying = false
                     self.errorMessage = firebaseMsg
                     completion(false, firebaseMsg)
-                } else if self.validKeys.contains(trimmedKey) {
+                } else if self.validKeyHashes.contains(SecurityShield.sha256(trimmedKey)) {
                     // Pre-approved key: check if locked in Firebase or lock it now
                     self.checkPreApprovedKeyLock(key: trimmedKey) { isLockedToOther in
                         DispatchQueue.main.async {
