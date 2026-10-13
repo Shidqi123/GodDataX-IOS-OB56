@@ -13,17 +13,11 @@ struct TouchMatrixCard: View {
                 // 1. Header Card: GDX Touch Matrix
                 HStack(alignment: .center) {
                     VStack(alignment: .leading, spacing: 3) {
-                        HStack(spacing: 8) {
-                            RoundedRectangle(cornerRadius: 2)
-                                .fill(Color(hex: "FF1E27"))
-                                .frame(width: 4, height: 16)
-                            
-                            Text("GDX Touch Matrix")
-                                .font(.rajdhani(18, weight: .bold))
-                                .foregroundColor(.white)
-                        }
+                        Text("GDX Touch Matrix")
+                            .font(.rajdhani(18, weight: .bold))
+                            .foregroundColor(.white)
                         
-                        Text(lang.text(id: "Multiplikator Sumbu X & Y Engine OB56", en: "OB56 Engine X & Y Axis Multiplier"))
+                        Text(lang.text(id: "Kalibrasi Sensitivitas & Kelicinan Layar", en: "Screen Sensitivity & Smoothness Calibration"))
                             .font(.rajdhani(12, weight: .medium))
                             .foregroundColor(Color.gray.opacity(0.85))
                     }
@@ -36,111 +30,93 @@ struct TouchMatrixCard: View {
                     }
                 }
                 
-                Divider().background(Color.white.opacity(0.08))
-                
-                // 2. Slider Sens X (Sesuai Desain Gambar 2)
-                CustomLevelSlider(
-                    title: "Sens X",
-                    level: $engine.sensXLevel,
-                    minLevel: 1,
-                    maxLevel: 7,
-                    isEnabled: engine.isMasterTouchEnabled,
-                    onChange: { val in
-                        engine.updateSensXLevel(val)
-                    }
-                )
-                
-                Divider().background(Color.white.opacity(0.06))
-                
-                // 3. Slider Sens Y (Sesuai Desain Gambar 2)
-                CustomLevelSlider(
-                    title: "Sens Y",
-                    level: $engine.sensYLevel,
-                    minLevel: 1,
-                    maxLevel: 7,
-                    isEnabled: engine.isMasterTouchEnabled,
-                    onChange: { val in
-                        engine.updateSensYLevel(val)
-                    }
-                )
-                
-                Divider().background(Color.white.opacity(0.08))
-                
-                // 4. Native Engine Direct Accelerator (100% Anti-Ban, Tanpa Dylib)
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack {
-                        Image(systemName: "shield.lefthalf.filled")
-                            .foregroundColor(Color(hex: "FF1E27"))
-                            .font(.system(size: 13))
+                // 2. Menu Slider Hanya Muncul Saat Toggle Aktif (Dengan Animasi)
+                if engine.isMasterTouchEnabled {
+                    VStack(alignment: .leading, spacing: 20) {
+                        Divider().background(Color.white.opacity(0.08))
                         
-                        Text(lang.text(id: "Mode Native (100% Anti-Ban, Tanpa Dylib)", en: "Native Mode (100% Anti-Ban, No Dylib)"))
-                            .font(.rajdhani(13, weight: .bold))
-                            .foregroundColor(.white)
-                        
-                        Spacer()
-                        
-                        Text(engine.isMasterTouchEnabled ? "AKTIF" : "NONAKTIF")
-                            .font(.rajdhani(11, weight: .bold))
-                            .foregroundColor(engine.isMasterTouchEnabled ? Color(hex: "FF1E27") : Color.gray)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 3)
-                            .background(
-                                Capsule().fill(engine.isMasterTouchEnabled ? Color(hex: "FF1E27").opacity(0.15) : Color.white.opacity(0.05))
-                            )
-                    }
-                    
-                    Text(lang.text(id: "Sens X & Y langsung mempercepat sampling layar ProMotion 120Hz dan memprioritaskan antrean sentuh hardware tanpa menyentuh file game.", en: "Sens X & Y directly accelerate ProMotion 120Hz screen sampling and prioritize hardware touch queues without touching game files."))
-                        .font(.rajdhani(11, weight: .medium))
-                        .foregroundColor(Color.gray.opacity(0.85))
-                        .lineSpacing(2)
-                    
-                    HStack(spacing: 10) {
-                        Button(action: {
-                            engine.openSystemTouchSettings()
-                        }) {
-                            HStack(spacing: 5) {
-                                Image(systemName: "gearshape.fill")
-                                    .font(.system(size: 10))
-                                Text("SETTING SENTUHAN IOS")
-                                    .font(.rajdhani(11, weight: .bold))
+                        // Slider Sens X (Sesuai Desain Gambar 2)
+                        CustomLevelSlider(
+                            title: "Sens X",
+                            level: $engine.sensXLevel,
+                            minLevel: 1,
+                            maxLevel: 7,
+                            isEnabled: engine.isMasterTouchEnabled,
+                            onChange: { val in
+                                engine.updateSensXLevel(val)
                             }
-                            .foregroundColor(.white.opacity(0.9))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.white.opacity(0.08))
-                            )
-                        }
+                        )
                         
-                        Button(action: {
-                            engine.applyNativeTouchBoost()
-                            withAnimation {
-                                showExportSuccess = true
+                        Divider().background(Color.white.opacity(0.06))
+                        
+                        // Slider Sens Y (Sesuai Desain Gambar 2)
+                        CustomLevelSlider(
+                            title: "Sens Y",
+                            level: $engine.sensYLevel,
+                            minLevel: 1,
+                            maxLevel: 7,
+                            isEnabled: engine.isMasterTouchEnabled,
+                            onChange: { val in
+                                engine.updateSensYLevel(val)
                             }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                                withAnimation {
-                                    showExportSuccess = false
+                        )
+                        
+                        Divider().background(Color.white.opacity(0.08))
+                        
+                        // Tombol Aksi
+                        HStack(spacing: 10) {
+                            Button(action: {
+                                engine.openSystemTouchSettings()
+                            }) {
+                                HStack(spacing: 5) {
+                                    Image(systemName: "gearshape.fill")
+                                        .font(.system(size: 10))
+                                    Text("SETTING SENTUHAN IOS")
+                                        .font(.rajdhani(11, weight: .bold))
                                 }
+                                .foregroundColor(.white.opacity(0.9))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 9)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color.white.opacity(0.08))
+                                )
                             }
-                        }) {
-                            HStack(spacing: 5) {
-                                Image(systemName: showExportSuccess ? "checkmark" : "bolt.fill")
-                                    .font(.system(size: 10))
-                                Text(showExportSuccess ? "DITERAPKAN" : "TERAPKAN SISTEM")
-                                    .font(.rajdhani(11, weight: .bold))
+                            
+                            Button(action: {
+                                engine.applyNativeTouchBoost()
+                                withAnimation {
+                                    showExportSuccess = true
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                                    withAnimation {
+                                        showExportSuccess = false
+                                    }
+                                }
+                            }) {
+                                HStack(spacing: 5) {
+                                    Image(systemName: showExportSuccess ? "checkmark" : "bolt.fill")
+                                        .font(.system(size: 10))
+                                    Text(showExportSuccess ? "DITERAPKAN" : "TERAPKAN SISTEM")
+                                        .font(.rajdhani(11, weight: .bold))
+                                }
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 9)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color(hex: "FF1E27"))
+                                )
                             }
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color(hex: "FF1E27"))
-                            )
                         }
                     }
+                    .transition(.asymmetric(
+                        insertion: .opacity.combined(with: .move(edge: .top)),
+                        removal: .opacity.combined(with: .move(edge: .top))
+                    ))
                 }
             }
+            .animation(.easeInOut(duration: 0.35), value: engine.isMasterTouchEnabled)
         }
     }
 }

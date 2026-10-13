@@ -3,6 +3,7 @@ import SwiftUI
 struct ThermalGuardCard: View {
     @ObservedObject var engine = GamingEngineService.shared
     @ObservedObject var lang = LanguageManager.shared
+    @State private var cooldownProgress: CGFloat = 0.0
     
     // Status warna sesuai tema GodDataX Merah
     var thermalColor: Color {
@@ -130,34 +131,57 @@ struct ThermalGuardCard: View {
                         isOn: $engine.isThermalGuardActive
                     )
                     
-                    // Tombol Dinginkan Sekarang (Tema Merah GodDataX)
+                    // Tombol Dinginkan Sekarang (Dengan Animasi Loading Kiri ke Kanan)
                     Button(action: {
+                        guard !engine.isCoolingInProgress else { return }
+                        cooldownProgress = 0.0
                         engine.triggerEmergencyCooldown()
+                        withAnimation(.linear(duration: 1.5)) {
+                            cooldownProgress = 1.0
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                cooldownProgress = 0.0
+                            }
+                        }
                     }) {
-                        HStack(spacing: 8) {
-                            if engine.isCoolingInProgress {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                    .scaleEffect(0.8)
-                            } else {
-                                Image(systemName: "snow")
-                                    .font(.system(size: 14, weight: .bold))
+                        ZStack {
+                            // Background bar animasi dari kiri ke kanan
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color(hex: "171821"))
+                                    
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(LinearGradient(
+                                            colors: [Color(hex: "FF1E27"), Color(hex: "A01016")],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        ))
+                                        .frame(width: engine.isCoolingInProgress ? max(0, min(geo.size.width, geo.size.width * cooldownProgress)) : geo.size.width)
+                                }
                             }
                             
-                            Text(engine.isCoolingInProgress ? lang.text(id: "SEDANG DIDINGINKAN...", en: "COOLING DOWN...") : lang.text(id: "DINGINKAN SEKARANG (FLUSH CACHE & RAM)", en: "COOLDOWN NOW (FLUSH CACHE & RAM)"))
-                                .font(.rajdhani(14, weight: .bold))
+                            // Konten Teks & Ikon
+                            HStack(spacing: 8) {
+                                if engine.isCoolingInProgress {
+                                    Image(systemName: "arrow.clockwise")
+                                        .rotationEffect(.degrees(Double(cooldownProgress * 360)))
+                                        .font(.system(size: 13, weight: .bold))
+                                } else {
+                                    Image(systemName: "snow")
+                                        .font(.system(size: 13, weight: .bold))
+                                }
+                                
+                                Text(engine.isCoolingInProgress ? "\(lang.text(id: "MEMBERSIHKAN CACHE & RAM", en: "FLUSHING CACHE & RAM")) (\(Int(cooldownProgress * 100))%)" : lang.text(id: "DINGINKAN SEKARANG (FLUSH CACHE & RAM)", en: "COOLDOWN NOW (FLUSH CACHE & RAM)"))
+                                    .font(.rajdhani(13, weight: .bold))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
                         }
-                        .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(LinearGradient(
-                                    colors: [Color(hex: "FF1E27"), Color(hex: "A01016")],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                ))
-                        )
+                        .frame(height: 46)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
                                 .stroke(Color.white.opacity(0.15), lineWidth: 1)

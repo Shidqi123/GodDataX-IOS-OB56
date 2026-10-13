@@ -219,7 +219,7 @@ class GamingEngineService: ObservableObject {
         }
         
         // 4. Efek penurunan suhu real-time
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
             self.thermalState = .nominal
             self.simulatedTemperature = 32.1
             self.isCoolingInProgress = false
