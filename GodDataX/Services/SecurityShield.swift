@@ -2,6 +2,7 @@ import Foundation
 import UIKit
 import CryptoKit
 import Darwin
+import MachO
 
 /// Sistem Keamanan Native GodDataX (Anti-Tamper, Anti-Crack & String Obfuscation)
 final class SecurityShield {
