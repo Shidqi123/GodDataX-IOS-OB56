@@ -4,33 +4,29 @@ struct ThermalGuardCard: View {
     @ObservedObject var engine = GamingEngineService.shared
     @ObservedObject var lang = LanguageManager.shared
     @State private var cooldownProgress: CGFloat = 0.0
+    @State private var isCooldownSuccess: Bool = false
     
-    // Status warna sesuai tema GodDataX Merah
+    // Status warna sesuai tema GodDataX Merah (Real-Time Responsif)
     var thermalColor: Color {
-        switch engine.thermalState {
-        case .nominal:
-            return Color.white.opacity(0.9)
-        case .fair:
-            return Color(hex: "FF1E27").opacity(0.7)
-        case .serious, .critical:
+        if engine.simulatedTemperature >= 38.0 || engine.thermalState == .serious || engine.thermalState == .critical {
             return Color(hex: "FF1E27")
-        @unknown default:
+        } else if engine.simulatedTemperature >= 34.5 || engine.thermalState == .fair {
+            return Color(hex: "FF1E27").opacity(0.8)
+        } else {
             return Color.white.opacity(0.9)
         }
     }
     
+    // Status teks badge real-time: langsung berubah saat suhu perangkat naik
     var thermalTitle: String {
-        switch engine.thermalState {
-        case .nominal:
-            return lang.text(id: "OPTIMAL / NORMAL", en: "OPTIMAL / NORMAL")
-        case .fair:
-            return lang.text(id: "HANGAT NORMAL", en: "WARM (SAFE)")
-        case .serious:
-            return lang.text(id: "PANAS (THROTTLING)", en: "HOT (THROTTLING)")
-        case .critical:
+        if engine.simulatedTemperature >= 42.0 || engine.thermalState == .critical {
             return lang.text(id: "KRITIS (OVERHEAT)", en: "CRITICAL OVERHEAT")
-        @unknown default:
-            return "NORMAL"
+        } else if engine.simulatedTemperature >= 38.0 || engine.thermalState == .serious {
+            return lang.text(id: "PANAS (THROTTLING)", en: "HOT (THROTTLING)")
+        } else if engine.simulatedTemperature >= 34.5 || engine.thermalState == .fair {
+            return lang.text(id: "HANGAT (STABIL)", en: "WARM (STABLE)")
+        } else {
+            return lang.text(id: "OPTIMAL / NORMAL", en: "OPTIMAL / NORMAL")
         }
     }
     
@@ -53,18 +49,12 @@ struct ThermalGuardCard: View {
         GlassCard(borderColor: Color(hex: "FF1E27").opacity(0.4), cornerRadius: 18) {
             VStack(alignment: .leading, spacing: 16) {
                 
-                // 1. Header Card GodDataX Red Theme
+                // 1. Header Card GodDataX Red Theme (Tanpa Garis Merah di Kiri Teks)
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 3) {
-                        HStack(spacing: 8) {
-                            RoundedRectangle(cornerRadius: 2)
-                                .fill(Color(hex: "FF1E27"))
-                                .frame(width: 4, height: 16)
-                            
-                            Text("GDX THERMAL SHIELD")
-                                .font(.rajdhani(18, weight: .bold))
-                                .foregroundColor(.white)
-                        }
+                        Text("GDX Thermal Shield")
+                            .font(.rajdhani(18, weight: .bold))
+                            .foregroundColor(.white)
                         
                         Text(lang.text(id: "Monitor Suhu Real-Time & Throttle Guard", en: "Real-time Thermal Monitor & Throttle Guard"))
                             .font(.rajdhani(12, weight: .medium))
@@ -73,6 +63,7 @@ struct ThermalGuardCard: View {
                     
                     Spacer()
                     
+                    // Badge Real-time yang langsung berubah saat suhu naik/turun
                     Text(thermalTitle)
                         .font(.rajdhani(11, weight: .bold))
                         .foregroundColor(thermalColor)
@@ -80,6 +71,7 @@ struct ThermalGuardCard: View {
                         .padding(.vertical, 4)
                         .background(Capsule().fill(Color(hex: "FF1E27").opacity(0.15)))
                         .overlay(Capsule().stroke(Color(hex: "FF1E27").opacity(0.4), lineWidth: 1))
+                        .animation(.easeInOut(duration: 0.3), value: thermalTitle)
                 }
                 
                 Divider().background(Color.white.opacity(0.08))
@@ -150,23 +142,33 @@ struct ThermalGuardCard: View {
                             )
                     }
                     
-                    // Tombol Dinginkan Sekarang (Durasi Loading Dinamis Tergantung Ukuran Cache)
+                    // Tombol Dinginkan Sekarang (Animasi Halus & Tenang dari Kiri ke Kanan)
                     Button(action: {
                         guard !engine.isCoolingInProgress else { return }
                         cooldownProgress = 0.0
+                        isCooldownSuccess = false
                         let dynamicDuration = engine.computeCooldownDuration()
                         engine.triggerEmergencyCooldown(customDuration: dynamicDuration)
-                        withAnimation(.linear(duration: dynamicDuration)) {
+                        
+                        withAnimation(.easeInOut(duration: dynamicDuration)) {
                             cooldownProgress = 1.0
                         }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + dynamicDuration + 0.3) {
-                            withAnimation(.easeOut(duration: 0.3)) {
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + dynamicDuration) {
+                            withAnimation(.easeInOut(duration: 0.25)) {
+                                isCooldownSuccess = true
+                            }
+                        }
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + dynamicDuration + 1.2) {
+                            withAnimation(.easeInOut(duration: 0.35)) {
+                                isCooldownSuccess = false
                                 cooldownProgress = 0.0
                             }
                         }
                     }) {
                         ZStack {
-                            // Background bar animasi dari kiri ke kanan dengan kecepatan proporsional
+                            // Background bar animasi mengisi halus dari kiri ke kanan
                             GeometryReader { geo in
                                 ZStack(alignment: .leading) {
                                     RoundedRectangle(cornerRadius: 12)
@@ -179,21 +181,28 @@ struct ThermalGuardCard: View {
                                             endPoint: .trailing
                                         ))
                                         .frame(width: engine.isCoolingInProgress ? max(0, min(geo.size.width, geo.size.width * cooldownProgress)) : geo.size.width)
+                                    
+                                    // Garis aksen lembut di ujung progress bar
+                                    if engine.isCoolingInProgress && cooldownProgress > 0.02 && cooldownProgress < 0.98 {
+                                        Rectangle()
+                                            .fill(Color.white.opacity(0.35))
+                                            .frame(width: 3, height: geo.size.height)
+                                            .offset(x: max(0, (geo.size.width * cooldownProgress) - 1.5))
+                                    }
                                 }
                             }
                             
-                            // Konten Teks & Ikon
+                            // Konten Teks & Ikon Tenang (Tanpa Putaran Pusing)
                             HStack(spacing: 8) {
-                                if engine.isCoolingInProgress {
-                                    Image(systemName: "arrow.clockwise")
-                                        .rotationEffect(.degrees(Double(cooldownProgress * 360)))
+                                if isCooldownSuccess {
+                                    Image(systemName: "checkmark")
                                         .font(.system(size: 13, weight: .bold))
                                 } else {
                                     Image(systemName: "snow")
                                         .font(.system(size: 13, weight: .bold))
                                 }
                                 
-                                Text(engine.isCoolingInProgress ? "\(lang.text(id: "MEMBERSIHKAN CACHE & RAM", en: "FLUSHING CACHE & RAM")) (\(Int(cooldownProgress * 100))%)" : lang.text(id: "DINGINKAN SEKARANG (FLUSH CACHE & RAM)", en: "COOLDOWN NOW (FLUSH CACHE & RAM)"))
+                                Text(isCooldownSuccess ? lang.text(id: "PENDINGINAN SELESAI", en: "COOLDOWN COMPLETED") : (engine.isCoolingInProgress ? lang.text(id: "MEMBERSIHKAN CACHE & MEMORI...", en: "FLUSHING CACHE & MEMORY...") : lang.text(id: "DINGINKAN SEKARANG (FLUSH CACHE & RAM)", en: "COOLDOWN NOW (FLUSH CACHE & RAM)")))
                                     .font(.rajdhani(13, weight: .bold))
                             }
                             .foregroundColor(.white)

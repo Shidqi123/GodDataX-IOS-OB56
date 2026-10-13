@@ -30,14 +30,14 @@ struct TouchMatrixCard: View {
                     }
                 }
                 
-                // 2. Menu Slider Hanya Muncul Saat Toggle Aktif (Dengan Animasi)
+                // 2. Menu Slider Hanya Muncul Saat Toggle Aktif (Dengan Animasi Smooth)
                 if engine.isMasterTouchEnabled {
                     VStack(alignment: .leading, spacing: 20) {
                         Divider().background(Color.white.opacity(0.08))
                         
-                        // Slider Sens X (Sesuai Desain Gambar 2)
+                        // Slider GDX Sens 1 (Sumbu X)
                         CustomLevelSlider(
-                            title: "Sens X",
+                            title: "GDX Sens 1",
                             level: $engine.sensXLevel,
                             minLevel: 1,
                             maxLevel: 7,
@@ -49,9 +49,9 @@ struct TouchMatrixCard: View {
                         
                         Divider().background(Color.white.opacity(0.06))
                         
-                        // Slider Sens Y (Sesuai Desain Gambar 2)
+                        // Slider GDX Sens 2 (Sumbu Y)
                         CustomLevelSlider(
-                            title: "Sens Y",
+                            title: "GDX Sens 2",
                             level: $engine.sensYLevel,
                             minLevel: 1,
                             maxLevel: 7,
@@ -60,63 +60,14 @@ struct TouchMatrixCard: View {
                                 engine.updateSensYLevel(val)
                             }
                         )
-                        
-                        Divider().background(Color.white.opacity(0.08))
-                        
-                        // Tombol Aksi
-                        HStack(spacing: 10) {
-                            Button(action: {
-                                engine.openSystemTouchSettings()
-                            }) {
-                                HStack(spacing: 5) {
-                                    Image(systemName: "gearshape.fill")
-                                        .font(.system(size: 10))
-                                    Text("SETTING SENTUHAN IOS")
-                                        .font(.rajdhani(11, weight: .bold))
-                                }
-                                .foregroundColor(.white.opacity(0.9))
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 9)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color.white.opacity(0.08))
-                                )
-                            }
-                            
-                            Button(action: {
-                                engine.applyNativeTouchBoost()
-                                withAnimation {
-                                    showExportSuccess = true
-                                }
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                                    withAnimation {
-                                        showExportSuccess = false
-                                    }
-                                }
-                            }) {
-                                HStack(spacing: 5) {
-                                    Image(systemName: showExportSuccess ? "checkmark" : "bolt.fill")
-                                        .font(.system(size: 10))
-                                    Text(showExportSuccess ? "DITERAPKAN" : "TERAPKAN SISTEM")
-                                        .font(.rajdhani(11, weight: .bold))
-                                }
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 9)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color(hex: "FF1E27"))
-                                )
-                            }
-                        }
                     }
                     .transition(.asymmetric(
-                        insertion: .opacity.combined(with: .move(edge: .top)),
-                        removal: .opacity.combined(with: .move(edge: .top))
+                        insertion: .opacity.combined(with: .scale(scale: 0.96, anchor: .top)).combined(with: .move(edge: .top)),
+                        removal: .opacity.combined(with: .scale(scale: 0.96, anchor: .top)).combined(with: .move(edge: .top))
                     ))
                 }
             }
-            .animation(.easeInOut(duration: 0.35), value: engine.isMasterTouchEnabled)
+            .animation(.spring(response: 0.42, dampingFraction: 0.82), value: engine.isMasterTouchEnabled)
         }
     }
 }
