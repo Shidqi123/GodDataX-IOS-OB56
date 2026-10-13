@@ -95,12 +95,54 @@ static CGPoint hook_locationInView(UITouch *self, SEL _cmd, UIView *view) {
     return CGPointMake(orig.x + amplifiedDx, orig.y + amplifiedDy);
 }
 
+static NSTimeInterval gGameLaunchTime = 0;
+
+static void updateGamePlaytimeStats(void) {
+    if (gGameLaunchTime <= 0) return;
+    NSTimeInterval sessionSeconds = [[NSDate date] timeIntervalSince1970] - gGameLaunchTime;
+    if (sessionSeconds <= 0) return;
+    
+    NSArray *paths = @[
+        @"/var/mobile/Documents/GodDataX_GameStats.json",
+        [NSTemporaryDirectory() stringByAppendingPathComponent:@"GodDataX_GameStats.json"]
+    ];
+    
+    double previousTotal = 0;
+    for (NSString *p in paths) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:p]) {
+            NSData *d = [NSData dataWithContentsOfFile:p];
+            if (d) {
+                NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:d options:0 error:nil];
+                if (dict && dict[@"playtimeSeconds"]) {
+                    previousTotal = [dict[@"playtimeSeconds"] doubleValue];
+                    break;
+                }
+            }
+        }
+    }
+    
+    double newTotal = previousTotal + 5.0;
+    NSDictionary *stats = @{
+        @"bundleId": @"com.dts.freefireth",
+        @"playtimeSeconds": @(newTotal),
+        @"sessionSeconds": @(sessionSeconds),
+        @"lastActive": @([[NSDate date] timeIntervalSince1970])
+    };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:stats options:0 error:nil];
+    if (data) {
+        for (NSString *p in paths) {
+            [data writeToFile:p atomically:YES];
+        }
+    }
+}
+
 // Inisialisasi Hook saat dylib dimuat oleh Free Fire
 __attribute__((constructor))
 static void initializeGodDataXHook(void) {
     @autoreleasepool {
         NSLog(@"[GodDataX OB56] Initializing Native Free Fire Touch Hook...");
         
+        gGameLaunchTime = [[NSDate date] timeIntervalSince1970];
         loadGDXConfig();
         
         // Timer polling konfigurasi setiap 5 detik agar perubahan slider di GodDataX langsung diterapkan
@@ -108,6 +150,7 @@ static void initializeGodDataXHook(void) {
             while (1) {
                 sleep(5);
                 loadGDXConfig();
+                updateGamePlaytimeStats();
             }
         });
         

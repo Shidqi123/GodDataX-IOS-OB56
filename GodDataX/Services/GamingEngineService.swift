@@ -124,14 +124,22 @@ class GamingEngineService: ObservableObject {
     private var isAudioOptimized: Bool = false
     private var displayLink: CADisplayLink?
     
+    // MARK: - Realtime Playtime Properties
+    @Published var realtimePlaytimeTick: Int = 0
+    private var activeSessionStart: Date?
+    private var activeSessionBundle: String?
+    private var playtimeTimer: Timer?
+    
     init() {
         startThermalMonitoring()
+        setupPlaytimeTracking()
         exportTouchConfig()
         refreshCacheSize()
     }
     
     deinit {
         thermalTimer?.invalidate()
+        playtimeTimer?.invalidate()
         NotificationCenter.default.removeObserver(self)
     }
     
@@ -586,30 +594,125 @@ class GamingEngineService: ObservableObject {
         recalculateActiveCount()
     }
     
-    // MARK: - Playtime Tracker (Waktu Pemakaian Game)
-    func formattedGamePlaytime(for bundleId: String) -> String {
-        let key = "gdx_playtime_seconds_\(bundleId)"
-        var totalSeconds = UserDefaults.standard.integer(forKey: key)
-        if totalSeconds == 0 {
-            // Default baseline sesuai referensi (2j 43m)
-            totalSeconds = (2 * 3600) + (43 * 60)
-            UserDefaults.standard.set(totalSeconds, forKey: key)
+    // MARK: - Genuine Realtime Playtime Tracking (Waktu Pemakaian Game Real-Time)
+    
+    func setupPlaytimeTracking() {
+        // Lifecycle observers: kalkulasi waktu saat beralih antara GodDataX dan Free Fire
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.checkAndCommitPlaytimeSession()
+            self?.readDylibPlaytimeStats()
+            self?.realtimePlaytimeTick += 1
         }
         
-        let hours = totalSeconds / 3600
-        let minutes = (totalSeconds % 3600) / 60
-        return "\(hours)j \(minutes)m"
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willResignActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.saveActiveSessionCheckpoint()
+        }
+        
+        // Timer realtime: memperbarui counter setiap detik dan menyinkronkan stats dylib
+        playtimeTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            self.readDylibPlaytimeStats()
+            self.realtimePlaytimeTick += 1
+        }
     }
     
+    /// Dipanggil seketika saat game diluncurkan melalui slider
     func recordGameLaunch(for bundleId: String) {
-        let key = "gdx_playtime_seconds_\(bundleId)"
-        var totalSeconds = UserDefaults.standard.integer(forKey: key)
-        if totalSeconds == 0 {
-            totalSeconds = (2 * 3600) + (43 * 60)
+        let now = Date()
+        self.activeSessionStart = now
+        self.activeSessionBundle = bundleId
+        
+        // Simpan timestamp awal sesi agar tetap terjaga meski app masuk background
+        UserDefaults.standard.set(now.timeIntervalSince1970, forKey: "gdx_active_session_start")
+        UserDefaults.standard.set(bundleId, forKey: "gdx_active_session_bundle")
+    }
+    
+    private func saveActiveSessionCheckpoint() {
+        guard let start = activeSessionStart, let bundleId = activeSessionBundle else { return }
+        UserDefaults.standard.set(start.timeIntervalSince1970, forKey: "gdx_active_session_start")
+        UserDefaults.standard.set(bundleId, forKey: "gdx_active_session_bundle")
+    }
+    
+    /// Menghitung durasi pemakaian yang baru saja berlangsung saat pemain kembali ke aplikasi
+    func checkAndCommitPlaytimeSession() {
+        let storedStart = UserDefaults.standard.double(forKey: "gdx_active_session_start")
+        guard storedStart > 0 else { return }
+        
+        let bundleId = UserDefaults.standard.string(forKey: "gdx_active_session_bundle") ?? "com.dts.freefireth"
+        let now = Date().timeIntervalSince1970
+        let elapsed = now - storedStart
+        
+        // Simpan akumulasi jika durasi valid (di bawah 12 jam)
+        if elapsed > 1.0 && elapsed < (12 * 3600) {
+            let key = "gdx_realtime_playtime_secs_\(bundleId)"
+            let prevSeconds = UserDefaults.standard.double(forKey: key)
+            let newTotal = prevSeconds + elapsed
+            UserDefaults.standard.set(newTotal, forKey: key)
         }
-        // Tambahkan sesi waktu pemakaian realistis (+12 menit per peluncuran)
-        totalSeconds += (12 * 60)
-        UserDefaults.standard.set(totalSeconds, forKey: key)
+        
+        UserDefaults.standard.removeObject(forKey: "gdx_active_session_start")
+        self.activeSessionStart = nil
+        self.activeSessionBundle = nil
+    }
+    
+    /// Membaca file statistik waktu bermain langsung yang ditulis oleh Hook Dylib di dalam Free Fire
+    func readDylibPlaytimeStats() {
+        let paths = [
+            "/var/mobile/Documents/GodDataX_GameStats.json",
+            NSTemporaryDirectory() + "GodDataX_GameStats.json"
+        ]
+        
+        for path in paths {
+            if FileManager.default.fileExists(atPath: path),
+               let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
+               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let bundleId = json["bundleId"] as? String,
+               let seconds = json["playtimeSeconds"] as? Double {
+                
+                let key = "gdx_realtime_playtime_secs_\(bundleId)"
+                let current = UserDefaults.standard.double(forKey: key)
+                if seconds > current {
+                    UserDefaults.standard.set(seconds, forKey: key)
+                }
+            }
+        }
+    }
+    
+    /// Mengambil total durasi waktu pemakaian bermain Free Fire secara realtime
+    func formattedGamePlaytime(for bundleId: String) -> String {
+        _ = realtimePlaytimeTick // Trigger pembaruan UI realtime
+        
+        let key = "gdx_realtime_playtime_secs_\(bundleId)"
+        var total = UserDefaults.standard.double(forKey: key)
+        
+        // Hitung sesi yang sedang aktif berlangsung saat ini secara realtime
+        if let start = activeSessionStart, activeSessionBundle == bundleId {
+            let ongoing = Date().timeIntervalSince(start)
+            total += ongoing
+        } else {
+            let storedStart = UserDefaults.standard.double(forKey: "gdx_active_session_start")
+            let storedBundle = UserDefaults.standard.string(forKey: "gdx_active_session_bundle")
+            if storedStart > 0 && storedBundle == bundleId {
+                let ongoing = Date().timeIntervalSince1970 - storedStart
+                if ongoing > 0 && ongoing < (12 * 3600) {
+                    total += ongoing
+                }
+            }
+        }
+        
+        let totalSecs = Int(total)
+        let hours = totalSecs / 3600
+        let minutes = (totalSecs % 3600) / 60
+        
+        return "\(hours)j \(minutes)m"
     }
     
     private func recalculateActiveCount() {
