@@ -52,6 +52,12 @@ jobs:
             GodDataX_Build216.ipa
             GodDataX_Build217.ipa
             GodDataX_Build218.ipa
+            GodDataX_OB56_Build218.ipa
+            GodDataX_OB56_Build219.ipa
+            GodDataX_v5_OB56.ipa
+            GodDataX_OB56_Matrix_Red.ipa
+            GodDataX_OB56_NewUpdate.ipa
+            GodDataX_Build219_RedEdition.ipa
             GodDataX_Home.ipa
             GodDataX_com_goddatax_ios.ipa
         continue-on-error: true
