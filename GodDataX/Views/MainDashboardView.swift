@@ -600,6 +600,7 @@ struct GameLaunchSheet: View {
                                     Color.white.opacity(0.06),
                                 lineWidth: 1.5
                             )
+                    )
                 }
             }
             
